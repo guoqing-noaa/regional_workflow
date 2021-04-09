@@ -1,8 +1,9 @@
+#!/bin/bash
 MACHINE="jet"
 ACCOUNT="nrtrr"
 RESERVATION="rrfsdet"
-EXPT_BASEDIR="/home/rtrr/RRFS"
-EXPT_SUBDIR="RRFS_dev1"
+EXPT_BASEDIR="/home/rtrr/RTMA"
+EXPT_SUBDIR="3DRTMA_dev1"
 
 if [[ -n $RESERVATION ]] ; then
   ACCOUNT=rtrr
@@ -17,7 +18,7 @@ FIXLAM_NCO_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 FIXgsm=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_am.20210128
 GWD_HRRRsuite_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 
-FIX_GSI=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_gsi
+FIX_GSI=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_gsi ### new background
 FIX_CRTM=/home/rtrr/FIX_EXEC_MODULE/crtm/CRTM_v2.3.0
 
 VERBOSE="TRUE"
@@ -27,16 +28,16 @@ PREEXISTING_DIR_METHOD="rename"
 
 PREDEF_GRID_NAME=RRFS_CONUS_3km
 
-DO_DACYCLE="true"
+DO_DACYCLE="true" #need to be true at this moment
 
 QUILTING="TRUE"
 CCPP_PHYS_SUITE="FV3_HRRR"
-FCST_LEN_HRS="12"
-FCST_LEN_HRS_CYCLES=(12 3 3 12 3 3 12 3 3 12 3 3 12 3 3 12 3 3 12 3 3 12 3 3)
+FCST_LEN_HRS="1" #lbcs
+FCST_LEN_HRS_CYCLES=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
 LBC_SPEC_INTVL_HRS="1"
 EXTRN_MDL_LBCS_OFFSET_HRS="1"
-DA_CYCLE_INTERV="1"
-RESTART_INTERVAL="1 2 3 4 5 6"
+DA_CYCLE_INTERV="1" #need to 1 to have hourly DA
+RESTART_INTERVAL="1" #"1 2 3 4 5 6" #restart file used by GSI
 
 NCORES_RUN_ANAL=240
 HALO_BLEND=10
@@ -46,7 +47,7 @@ HALO_BLEND=10
 #LAYOUT_Y="14"
 
 if [[ -n $RESERVATION ]] ; then
-  NNODES_MAKE_LBCS="3"
+  NNODES_MAKE_ICS="3"
   PPN_MAKE_ICS="20"
   NNODES_MAKE_LBCS="3"
   PPN_MAKE_LBCS="20"
@@ -54,27 +55,27 @@ if [[ -n $RESERVATION ]] ; then
   PPN_RUN_POST="40"
 fi
 
-WTIME_RUN_FCST="02:45:00"
+WTIME_RUN_FCST="00:45:00"
 
 DATE_FIRST_CYCL="20210401"
 DATE_LAST_CYCL="20211231"
-CYCL_HRS=( "00" "12" )
+CYCL_HRS=( "00" "12" ) #not used anymore
 
 EXTRN_MDL_NAME_ICS="HRRR"
 EXTRN_MDL_NAME_LBCS="RAP"
 
 envir="para"
 
-NET="RRFS_CONUS"
-TAG="RRFS_dev1_CONUS"
+NET="RRFS_CONUS" ## don't change at this time
+TAG="3DRTMA_dev1" ## used by job names
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
-CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/RRFS/dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt"
-ARCHIVEDIR="/5year/BMC/wrfruc/rrfs_dev1"
+CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/RRFS/dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt" #gge.debug
+ARCHIVEDIR="/5year/BMC/wrfruc/3drtma_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
-NCL_HOME="/home/rtrr/RRFS/graphics"
+NCL_HOME="/home/rtrr/RTMA/graphics"
 NCL_REGION="conus"
-MODEL="RRFS_dev1"
+MODEL="3DRTMA_dev1" #used by NCL
 
 #
 # In NCO mode, the following don't need to be explicitly set to "FALSE" 
@@ -85,7 +86,7 @@ MODEL="RRFS_dev1"
 #RUN_TASK_MAKE_OROG="FALSE"
 #RUN_TASK_MAKE_SFC_CLIMO="FALSE"
 
-RUN="RRFS_dev1"
+RUN="3DRTMA_dev1"
 COMINgfs=""
 
 STMP="/lfs4/BMC/nrtrr/NCO_dirs/stmp"  # Path to directory STMP that mostly contains input files.
