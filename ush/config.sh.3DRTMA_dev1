@@ -69,6 +69,14 @@ envir="para"
 NET="3DRTMA" ##product name prefix: ${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
 TAG="3DRTMA_dev1" ## used by job names
 
+##turn off tasks for 3DRTMA
+RUN_TASK_GET_EXTRN_ICS="FALSE"
+RUN_TASK_GET_EXTRN_LBCS="FALSE"
+RUN_TASK_MAKE_ICS="FALSE"
+RUN_TASK_MAKE_LBCS="FALSE"
+RUN_TASK_ANAL_GSI_INPUT="FALSE"
+RUN_TASK_ANAL_GSI_RESTART="TRUE"
+
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
 CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/3DRTMA/3DRTMA-dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt"
 ARCHIVEDIR="/5year/BMC/wrfruc/3drtma_dev1"
