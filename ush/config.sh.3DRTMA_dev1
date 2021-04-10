@@ -1,7 +1,7 @@
 #!/bin/bash
-MACHINE="jet"
+MACHINE="JET"
 ACCOUNT="nrtrr"
-RESERVATION="rrfsdet"
+RESERVATION="3drtma"
 EXPT_BASEDIR="/home/rtrr/RTMA"
 EXPT_SUBDIR="3DRTMA_dev1"
 
@@ -28,7 +28,7 @@ PREEXISTING_DIR_METHOD="rename"
 
 PREDEF_GRID_NAME=RRFS_CONUS_3km
 
-DO_DACYCLE="true" #need to be true at this moment
+DO_DACYCLE="true" #need to be true at this moment, later may change to DO_DA, DO_CYCLING
 
 QUILTING="TRUE"
 CCPP_PHYS_SUITE="FV3_HRRR"
@@ -37,7 +37,7 @@ FCST_LEN_HRS_CYCLES=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
 LBC_SPEC_INTVL_HRS="1"
 EXTRN_MDL_LBCS_OFFSET_HRS="1"
 DA_CYCLE_INTERV="1" #need to 1 to have hourly DA
-RESTART_INTERVAL="1" #"1 2 3 4 5 6" #restart file used by GSI
+RESTART_INTERVAL="1" #"1 2 3 4 5 6" #restart file used by GSI, don't need this, how to turn off writing restart files
 
 NCORES_RUN_ANAL=240
 HALO_BLEND=10
@@ -66,11 +66,11 @@ EXTRN_MDL_NAME_LBCS="RAP"
 
 envir="para"
 
-NET="RRFS_CONUS" ## don't change at this time
+NET="3DRTMA" ##product name prefix: ${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
 TAG="3DRTMA_dev1" ## used by job names
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
-CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/RRFS/dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt" #gge.debug
+CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/3DRTMA/3DRTMA-dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt"
 ARCHIVEDIR="/5year/BMC/wrfruc/3drtma_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
 NCL_HOME="/home/rtrr/RTMA/graphics"
