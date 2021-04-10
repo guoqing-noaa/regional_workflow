@@ -255,6 +255,7 @@ MODULES_RUN_TASK_FP script.
   </task>
 {% endif %}
 
+{% if run_task_get_extrn_ics -%}
 <!--
 ************************************************************************
 ************************************************************************
@@ -288,6 +289,8 @@ MODULES_RUN_TASK_FP script.
     </dependency>
 
   </task>
+{%- endif %}
+{%- if run_task_get_extrn_lbcs %}
 <!--
 ************************************************************************
 ************************************************************************
@@ -325,6 +328,7 @@ MODULES_RUN_TASK_FP script.
     </dependency>
 
   </task>
+{%- endif %}
 <!--
 ************************************************************************
 ************************************************************************
@@ -338,7 +342,7 @@ MODULES_RUN_TASK_FP script.
   {{- fmtstr%m -}}
 {%- endfor %} </var>
 {%- endif %}
-
+{% if run_task_make_ics %}
   <task name="&MAKE_ICS_TN;{{ uscore_ensmem_name }}" cycledefs="forecast" maxtries="{{ maxtries_make_ics }}">
 
     &RSRV_DEFAULT;
@@ -359,7 +363,9 @@ MODULES_RUN_TASK_FP script.
 
     <dependency>
       <and>
+        {%- if run_task_get_extrn_ics %}
         <taskdep task="&GET_EXTRN_ICS_TN;"/>
+        {%- endif %}
         <or>
 <!--          <taskdep task="&MAKE_GRID_TN;"/> -->
           <datadep age="00:00:00:05">&LOGDIR;/&MAKE_GRID_TN;_task_complete.txt</datadep>
@@ -379,6 +385,9 @@ MODULES_RUN_TASK_FP script.
     </dependency>
 
   </task>
+{%- endif %}
+
+{%- if run_task_make_lbcs %}
 <!--
 ************************************************************************
 ************************************************************************
@@ -403,7 +412,9 @@ MODULES_RUN_TASK_FP script.
 
     <dependency>
       <and>
+        {%- if run_task_get_extrn_lbcs %}
         <taskdep task="&GET_EXTRN_LBCS_TN;"/>
+        {%- endif %}
         <or>
 <!--          <taskdep task="&MAKE_GRID_TN;"/> -->
           <datadep age="00:00:00:05">&LOGDIR;/&MAKE_GRID_TN;_task_complete.txt</datadep>
@@ -423,8 +434,9 @@ MODULES_RUN_TASK_FP script.
     </dependency>
 
   </task>
+{%- endif %}
 
-{%- if do_dacycle %}
+{%- if run_task_anal_gsi_input %}
 <!--
 ************************************************************************
 ************************************************************************
@@ -457,13 +469,19 @@ MODULES_RUN_TASK_FP script.
     <dependency>
       <and>
         <timedep><cyclestr offset="&START_TIME_CONVENTIONAL;">@Y@m@d@H@M00</cyclestr></timedep>
+        {%- if run_task_make_lbcs %}
         <taskdep task="&MAKE_LBCS_TN;"/>
+        {%- endif %}
+        {%- if run_task_make_ics %}
         <taskdep task="&MAKE_ICS_TN;"/>
+        {%- endif %}
       </and>
     </dependency>
 
   </task>
+{%- endif %}
 
+{% if run_task_anal_gsi_restart -%}
 <!--
 ************************************************************************
 ************************************************************************
@@ -497,11 +515,15 @@ MODULES_RUN_TASK_FP script.
       <or>
         <and>
           <timedep><cyclestr offset="&START_TIME_CONVENTIONAL;">@Y@m@d@H@M00</cyclestr></timedep>
+          {%- if run_task_make_lbcs %}
           <taskdep task="&MAKE_LBCS_TN;"/>
+          {%- endif %}
           <datadep age="00:00:05:00"><cyclestr offset="-{{ da_cycle_interval_hrs }}:00:00">&CYCLE_BASEDIR;/@Y@m@d@H/dynf00{{ da_cycle_interval_hrs }}.nc</cyclestr></datadep>
         </and>
         <and>
+          {%- if run_task_make_lbcs %}
           <taskdep task="&MAKE_LBCS_TN;"/>
+          {%- endif %}
           <timedep><cyclestr offset="&START_TIME_ANALYSIS;">@Y@m@d@H@M00</cyclestr></timedep>
           <or>
             {%- for h in range(da_cycle_interval_hrs+da_cycle_interval_hrs, 6+1, da_cycle_interval_hrs) %}
@@ -545,15 +567,23 @@ MODULES_RUN_TASK_FP script.
     <envar><name>ENSMEM_INDX</name><value><cyclestr>#{{ ensmem_indx_name }}#</cyclestr></value></envar>
   
     <dependency>
-      {%- if do_dacycle %}
+      {%- if run_task_anal_gsi_input or run_task_anal_gsi_restart %}
       <or>
+        {%- if run_task_anal_gsi_input %}
         <taskdep task="&ANAL_GSI_INPUT_TN;"/>
+        {%- endif %}
+        {%- if run_task_anal_gsi_restart %}
         <taskdep task="&ANAL_GSI_RESTART_TN;"/>
+        {%- endif %}
       </or>
-      {%- else %}
+      {%- elif run_task_make_ics or run_task_make_lbcs %}
       <and>
+        {%- if run_task_make_ics %}
         <taskdep task="&MAKE_ICS_TN;{{ uscore_ensmem_name }}"/>
+        {%- endif %}
+        {%- if run_task_make_lbcs %}
         <taskdep task="&MAKE_LBCS_TN;{{ uscore_ensmem_name }}"/>
+        {%- endif %}
       </and>
       {%- endif %}
     </dependency>
