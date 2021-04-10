@@ -1057,6 +1057,13 @@ OROG_DIR="/path/to/pregenerated/orog/files"
 RUN_TASK_MAKE_SFC_CLIMO="TRUE"
 SFC_CLIMO_DIR="/path/to/pregenerated/surface/climo/files"
 #
+RUN_TASK_GET_EXTRN_ICS="TRUE"
+RUN_TASK_GET_EXTRN_LBCS="TRUE"
+RUN_TASK_MAKE_ICS="TRUE"
+RUN_TASK_MAKE_LBCS="TRUE"
+RUN_TASK_ANAL_GSI_INPUT="TRUE"
+RUN_TASK_ANAL_GSI_RESTART="TRUE"
+#
 #-----------------------------------------------------------------------
 #
 # Set the array parameter containing the names of all the fields that the

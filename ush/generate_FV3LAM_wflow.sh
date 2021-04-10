@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ $# -lt 1 ]]; then
+  echo "$0 config.sh_file"
+  exit
+fi
+ln -snf $1 config.sh
+
 #
 #-----------------------------------------------------------------------
 #
@@ -259,6 +265,13 @@ settings="\
   'run_task_make_orog': ${RUN_TASK_MAKE_OROG}
   'run_task_make_sfc_climo': ${RUN_TASK_MAKE_SFC_CLIMO}
 #
+  'run_task_get_extrn_ics': ${RUN_TASK_GET_EXTRN_ICS}
+  'run_task_get_extrn_lbcs': ${RUN_TASK_GET_EXTRN_LBCS}
+  'run_task_make_ics': ${RUN_TASK_MAKE_ICS}
+  'run_task_make_lbcs': ${RUN_TASK_MAKE_LBCS}
+  'run_task_anal_gsi_input': ${RUN_TASK_ANAL_GSI_INPUT}
+  'run_task_anal_gsi_restart': ${RUN_TASK_ANAL_GSI_RESTART}
+
 # Number of physical cores per node for the current machine.
 #
   'ncores_per_node': ${NCORES_PER_NODE}
