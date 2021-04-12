@@ -265,6 +265,8 @@ settings="\
   'run_task_make_orog': ${RUN_TASK_MAKE_OROG}
   'run_task_make_sfc_climo': ${RUN_TASK_MAKE_SFC_CLIMO}
 #
+  'is_3drtma':  ${IS_3DRTMA}
+  'fg_rootdir': ${FG_ROOTDIR}
   'run_task_get_extrn_ics': ${RUN_TASK_GET_EXTRN_ICS}
   'run_task_get_extrn_lbcs': ${RUN_TASK_GET_EXTRN_LBCS}
   'run_task_make_ics': ${RUN_TASK_MAKE_ICS}

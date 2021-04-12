@@ -1063,6 +1063,8 @@ RUN_TASK_MAKE_ICS="TRUE"
 RUN_TASK_MAKE_LBCS="TRUE"
 RUN_TASK_ANAL_GSI_INPUT="TRUE"
 RUN_TASK_ANAL_GSI_RESTART="TRUE"
+IS_3DRTMA="FALSE"
+FG_ROOTDIR="" #First Guess Root Dir, only needed by 3DRTMA
 #
 #-----------------------------------------------------------------------
 #
