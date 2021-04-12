@@ -4,8 +4,9 @@ if [[ $# -lt 1 ]]; then
   echo "$0 config.sh_file"
   exit
 fi
-ln -snf $1 config.sh
-
+if [ "$1" != "config.sh" ]; then
+  ln -snf $1 config.sh
+fi
 #
 #-----------------------------------------------------------------------
 #

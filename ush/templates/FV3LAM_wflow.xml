@@ -492,7 +492,7 @@ MODULES_RUN_TASK_FP script.
 ************************************************************************
 -->
 
-{% if is_3drtma %}
+{%- if is_3drtma %}
   <task name="&ANAL_GSI_RESTART_TN;" cycledefs="forecast,dacycle" maxtries="{{ maxtries_anal_gsi }}">
 {%- else %}
   <task name="&ANAL_GSI_RESTART_TN;" cycledefs="dacycle" maxtries="{{ maxtries_anal_gsi }}">
