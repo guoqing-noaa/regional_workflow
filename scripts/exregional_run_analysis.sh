@@ -546,7 +546,7 @@ else                          # cycling, generate INPUT from previous cycle REST
     #to make sure it exists and was written out completely. 
     mkdir -p ${CYCLE_DIR}/INPUT
     TIME1HAGO=`date -d "${START_DATE}" +"%Y-%m-%d %H:%M:%S"`
-    bdryfile0=${FG_ROOT}/`cd $FG_ROOT;find . -name "gfs_bndy.tile7.000.nc" ! -newermt "$TIME1HAGO" -size +100M | xargs ls -1rt $bdryfiles |tail -n 1`
+    bdryfile0=${FG_ROOT}/`cd $FG_ROOT;find . -name "gfs_bndy.tile7.000.nc" ! -newermt "$TIME1HAGO" -size +100M | xargs ls -1rt |tail -n 1`
     bdryfile1=`echo $bdryfile0 | sed -e "s/gfs_bndy.tile7.000.nc/gfs_bndy.tile7.001.nc/"`
     ln_vrfy -snf ${bdryfile0} ${CYCLE_DIR}/INPUT
     ln_vrfy -snf ${bdryfile1} ${CYCLE_DIR}/INPUT
