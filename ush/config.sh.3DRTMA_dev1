@@ -1,5 +1,5 @@
 #!/bin/bash
-MACHINE="JET"
+MACHINE="jet"
 ACCOUNT="nrtrr"
 RESERVATION="3drtma"
 EXPT_BASEDIR="/home/rtrr/RTMA"
@@ -28,7 +28,7 @@ PREEXISTING_DIR_METHOD="rename"
 
 PREDEF_GRID_NAME=RRFS_CONUS_3km
 
-DO_DACYCLE="true" #need to be true at this moment, later may change to DO_DA, DO_CYCLING
+DO_DACYCLE="true"
 
 QUILTING="TRUE"
 CCPP_PHYS_SUITE="FV3_HRRR"
@@ -36,8 +36,8 @@ FCST_LEN_HRS="0" #the number of run_post jobs #lbcs
 FCST_LEN_HRS_CYCLES=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
 LBC_SPEC_INTVL_HRS="1"
 EXTRN_MDL_LBCS_OFFSET_HRS="1"
-DA_CYCLE_INTERV="1" #need to 1 to have hourly DA
-RESTART_INTERVAL="1" #"1 2 3 4 5 6" #restart file used by GSI, don't need this, how to turn off writing restart files
+DA_CYCLE_INTERV="1" #need to be 1 to have hourly DA
+RESTART_INTERVAL="1" #"1 2 3 4 5 6" #restart file used by GSI, don't need this, how to turn off writing restart files?
 
 NCORES_RUN_ANAL=240
 HALO_BLEND=10
@@ -45,6 +45,10 @@ HALO_BLEND=10
 #LAYOUT_Y="8"
 #LAYOUT_X="28"
 #LAYOUT_Y="14"
+#LAYOUT_X="23"
+#LAYOUT_Y="10"
+LAYOUT_X="17"
+LAYOUT_Y="10"
 
 if [[ -n $RESERVATION ]] ; then
   NNODES_MAKE_ICS="3"
@@ -55,7 +59,7 @@ if [[ -n $RESERVATION ]] ; then
   PPN_RUN_POST="40"
 fi
 
-WTIME_RUN_FCST="00:45:00"
+WTIME_RUN_FCST="00:05:00" #normally 2 minutes is enough to generate dynf000.nc and phyf000.nc
 
 DATE_FIRST_CYCL="20210401"
 DATE_LAST_CYCL="20211231"
@@ -69,15 +73,9 @@ envir="para"
 NET="3DRTMA" ##product name prefix: ${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
 TAG="3DRTMA_dev1" ## used by job names
 IS_3DRTMA="TRUE"
+NCORES_PER_NODE=40 #kjet
 FG_ROOTDIR="/lfs4/BMC/nrtrr/NCO_dirs/stmp/tmpnwprd/RRFS_dev1" #only needed by 3DRTMA
-
-##turn off tasks for 3DRTMA
-RUN_TASK_GET_EXTRN_ICS="FALSE"
-RUN_TASK_GET_EXTRN_LBCS="FALSE"
-RUN_TASK_MAKE_ICS="FALSE"
-RUN_TASK_MAKE_LBCS="FALSE"
-RUN_TASK_ANAL_GSI_INPUT="FALSE"
-RUN_TASK_ANAL_GSI_RESTART="TRUE"
+NEW_STMP="FALSE"  #don't rename/remove $STMP
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
 CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/3DRTMA/3DRTMA-dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt"
