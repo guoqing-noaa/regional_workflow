@@ -542,11 +542,14 @@ if [ ${BKTYPE} -eq 1 ]; then  # cold start, put analysis back to current INPUT
   cp ${ANALWORKDIR}/fv3_sfcdata ${CYCLE_DIR}/INPUT/sfc_data.tile7.halo0.nc
 else                          # cycling, generate INPUT from previous cycle RESTART and GSI analysis
   if [ "${NET}" = "3DRTMA" ]; then
-    #link bdry files from the corresponding RRFS cycle
+    #find a bdry file last modified before current cycle time and size > 100M 
+    #to make sure it exists and was written out completely. 
     mkdir -p ${CYCLE_DIR}/INPUT
-    ln -snf ${FG_ROOT}/${YYYYMMDDHH}/INPUT/gfs_bndy.tile7.000.nc ${CYCLE_DIR}/INPUT
-    ln -snf ${FG_ROOT}/${YYYYMMDDHH}/INPUT/gfs_bndy.tile7.001.nc ${CYCLE_DIR}/INPUT
-    #don't use ln_vrfy because at this time, the gfs_bndy.tile7.000.nc may not exist yet
+    TIME1HAGO=`date -d "${START_DATE}" +"%Y-%m-%d %H:%M:%S"`
+    bdryfile0=${FG_ROOT}/`cd $FG_ROOT;find . -name "gfs_bndy.tile7.000.nc" ! -newermt "$TIME1HAGO" -size +100M | xargs ls -1rt $bdryfiles |tail -n 1`
+    bdryfile1=`echo $bdryfile0 | sed -e "s/gfs_bndy.tile7.000.nc/gfs_bndy.tile7.001.nc/"`
+    ln_vrfy -snf ${bdryfile0} ${CYCLE_DIR}/INPUT
+    ln_vrfy -snf ${bdryfile1} ${CYCLE_DIR}/INPUT
   fi
   cp_vrfy ${bkpath}/${restart_prefix}coupler.res                ${CYCLE_DIR}/INPUT/coupler.res
   cp_vrfy ${bkpath}/${restart_prefix}fv_core.res.nc             ${CYCLE_DIR}/INPUT/fv_core.res.nc
