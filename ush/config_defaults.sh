@@ -1046,14 +1046,14 @@ VERBOSE="TRUE"
 # SFC_CLIMO_DIR:
 # Same as GRID_DIR but for the surface climatology generation task.
 #
-# IS_3DRTMA:
+# IS_RTMA:
 #   If true, some ICs,LBCs,GSI rocoto tasks will be turned off
 #
 # FG_ROOTDIR:
 #  First Guess Root Directory, GSI will find corresponding first guess
 #  fields from this directory. RRFS will find FG under CYCLE_BASEDIR,
-#  but we needs to explicitly specify where to find FG for 3DRTMA.
-#  So this parameter only matters for 3DRTMA
+#  but we needs to explicitly specify where to find FG for RTMA.
+#  So this parameter only matters for RTMA
 #
 # NEW_STMP:
 #   if TRUE, existing $STMP directory will be renamed/removed,  but this
@@ -1071,7 +1071,7 @@ RUN_TASK_MAKE_SFC_CLIMO="TRUE"
 SFC_CLIMO_DIR="/path/to/pregenerated/surface/climo/files"
 #
 NCORES_PER_NODE=24 #Jet default value
-IS_3DRTMA="FALSE"
+IS_RTMA="FALSE"
 FG_ROOTDIR=""
 NEW_STMP="TRUE"
 #

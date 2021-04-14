@@ -3,7 +3,7 @@ MACHINE="jet"
 ACCOUNT="nrtrr"
 RESERVATION="3drtma"
 EXPT_BASEDIR="/home/rtrr/RTMA"
-EXPT_SUBDIR="3DRTMA_dev1"
+EXPT_SUBDIR="RTMA_dev1"
 
 if [[ -n $RESERVATION ]] ; then
   ACCOUNT=rtrr
@@ -18,7 +18,7 @@ FIXLAM_NCO_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 FIXgsm=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_am.20210128
 GWD_HRRRsuite_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 
-FIX_GSI=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_gsi ### new background
+FIX_GSI=/mnt/lfs4/BMC/nrtrr/RTMA/fix/fix_gsi# new background
 FIX_CRTM=/home/rtrr/FIX_EXEC_MODULE/crtm/CRTM_v2.3.0
 
 VERBOSE="TRUE"
@@ -70,20 +70,20 @@ EXTRN_MDL_NAME_LBCS="RAP"
 
 envir="para"
 
-NET="3DRTMA" ##product name prefix: ${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
-TAG="3DRTMA_dev1" ## used by job names
-IS_3DRTMA="TRUE"
+NET="RTMA" ##product name prefix: ${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
+TAG="RTMA_dev1" ## used by job names
+IS_RTMA="TRUE"
 NCORES_PER_NODE=40 #kjet
-FG_ROOTDIR="/lfs4/BMC/nrtrr/NCO_dirs/stmp/tmpnwprd/RRFS_dev1" #only needed by 3DRTMA
+FG_ROOTDIR="/lfs4/BMC/nrtrr/NCO_dirs/stmp/tmpnwprd/RRFS_dev1" #only needed by RTMA
 NEW_STMP="FALSE"  #don't rename/remove $STMP
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
-CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/3DRTMA/3DRTMA-dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt"
-ARCHIVEDIR="/5year/BMC/wrfruc/3drtma_dev1"
+CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/RTMA/RTMA-dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt"
+ARCHIVEDIR="/5year/BMC/wrfruc/rtma_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
 NCL_HOME="/home/rtrr/RTMA/graphics"
 NCL_REGION="conus"
-MODEL="3DRTMA_dev1" #used by NCL
+MODEL="RTMA_dev1" #used by NCL
 
 #
 # In NCO mode, the following don't need to be explicitly set to "FALSE" 
@@ -94,7 +94,7 @@ MODEL="3DRTMA_dev1" #used by NCL
 #RUN_TASK_MAKE_OROG="FALSE"
 #RUN_TASK_MAKE_SFC_CLIMO="FALSE"
 
-RUN="3DRTMA_dev1"
+RUN="RTMA_dev1"
 COMINgfs=""
 
 STMP="/lfs4/BMC/nrtrr/NCO_dirs/stmp"  # Path to directory STMP that mostly contains input files.

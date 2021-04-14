@@ -541,7 +541,7 @@ if [ ${BKTYPE} -eq 1 ]; then  # cold start, put analysis back to current INPUT
   cp ${ANALWORKDIR}/fv3_dynvars ${CYCLE_DIR}/INPUT/gfs_data.tile7.halo0.nc
   cp ${ANALWORKDIR}/fv3_sfcdata ${CYCLE_DIR}/INPUT/sfc_data.tile7.halo0.nc
 else                          # cycling, generate INPUT from previous cycle RESTART and GSI analysis
-  if [ "${NET}" = "3DRTMA" ]; then
+  if [ "${NET}" = "RTMA" ]; then
     #find a bdry file last modified before current cycle time and size > 100M 
     #to make sure it exists and was written out completely. 
     mkdir -p ${CYCLE_DIR}/INPUT
