@@ -425,6 +425,45 @@ FCST_LEN_HRS_CYCLES=( )
 DA_CYCLE_INTERV="3"
 RESTART_INTERVAL="3,6"
 #
+#-------------------------------------------------------------------------------------
+#      GSI Namelist parameters configurable across differnt applications
+# if we need to tune one GSI namelist parameter, we can elevate it to a shell variable
+# and assign value in config.sh and give it a default value in config_default.sh
+# In realtime testing, don't need to regenerate the whole workflow, you can tweak 
+# $EXPTDIR/var_defns.sh and $USH/template/gsiparm.anl.sh to make sure the change is
+# expected and then put it back into config.sh and config_default.sh
+#       (need to follow FORTRAN namelist convetion)
+#-------------------------------------------------------------------------------------
+# &SETUP  and &BKGERR
+diag_radardbz=.true.
+write_diag_2=.false.
+bkgerr_vs=1.0
+bkgerr_hzscl=0.373,0.746,1.5   #no trailing ,
+
+# &HYBRID_ENSEMBLE
+readin_localization=.true.     #if true, it overwrites the "beta1_inv/ens_h/ens_v" setting
+beta1_inv=0.15                 #beata_inv is 1-ensemble_wgt
+ens_h=110
+ens_v=3
+regional_ensemble_option=1     #1 for GDAS
+grid_ratio_ens=3               #analysis 3km, so ensemble=3*3=9km. GDAS ensemble is 20km
+i_en_perts_io=1                #0 or 1: original file   3: pre-processed ensembles
+
+# &RAPIDREFRESH_CLDSURF
+l_PBL_pseudo_SurfobsT=.false.
+l_PBL_pseudo_SurfobsQ=.false.
+i_use_2mQ4B=0
+i_use_2mT4B=0
+#-----------------------------------------------------------------------
+#
+ANAVINFO_FN="anavinfo.fv3lam_hrrr"
+CONVINFO_FN="convinfo.rrfs"
+BERROR_FN="rap_berror_stats_global_RAP_tune" #under $FIX_GSI
+OBERROR_FN="errtable.rrfs"
+HYBENSINFO_FN="hybens_info.rrfs"
+AIRCRAFT_REJECT="/home/amb-verif/acars_RR/amdar_reject_lists"
+SFCOBS_USELIST="/home/amb-verif/ruc_madis_surface/mesonet_uselists"
+#
 #-----------------------------------------------------------------------
 #
 # Set initial and lateral boundary condition generation parameters.  
@@ -1058,7 +1097,10 @@ VERBOSE="TRUE"
 # NEW_STMP:
 #   if TRUE, existing $STMP directory will be renamed/removed,  but this
 #   may break current real-time/ongoing runs. Set to FALSE to avoid that 
-# 
+#
+# NEW_EXPTDIR:
+#   if FALSE, don't create a new $EXPDIR,just overwite same files
+#   under existing $EXPDIR; otherwise, rename/remove existing dir.
 #-----------------------------------------------------------------------
 #
 RUN_TASK_MAKE_GRID="TRUE"
@@ -1074,6 +1116,7 @@ NCORES_PER_NODE=24 #Jet default value
 IS_RTMA="FALSE"
 FG_ROOTDIR=""
 NEW_STMP="TRUE"
+NEW_EXPTDIR="TRUE"
 #
 #-----------------------------------------------------------------------
 #
