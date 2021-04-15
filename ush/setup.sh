@@ -1125,14 +1125,11 @@ fi
 #
 # Set the full path to the experiment directory.  Then check if it already
 # exists and if so, deal with it as specified by PREEXISTING_DIR_METHOD.
-#  IF $NEW_EXPTDIR = FALSE, overwrite same files under $EXPTDIR
 #
 #-----------------------------------------------------------------------
 #
 EXPTDIR="${EXPT_BASEDIR}/${EXPT_SUBDIR}"
-if [ "${NEW_EXPTDIR}" = "TRUE" ]; then
-  check_for_preexist_dir_file "$EXPTDIR" "${PREEXISTING_DIR_METHOD}"
-fi
+check_for_preexist_dir_file "$EXPTDIR" "${PREEXISTING_DIR_METHOD}"
 #
 #-----------------------------------------------------------------------
 #
@@ -2484,6 +2481,8 @@ ENKF_FCST="${ENKF_FCST}"
 
 FIX_GSI="${FIX_GSI}"
 FIX_CRTM="${FIX_CRTM}"
+AIRCRAFT_REJECT="${AIRCRAFT_REJECT}"
+SFCOBS_USELIST="${SFCOBS_USELIST}"
 
 #
 #-----------------------------------------------------------------------

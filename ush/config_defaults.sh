@@ -1098,9 +1098,6 @@ VERBOSE="TRUE"
 #   if TRUE, existing $STMP directory will be renamed/removed,  but this
 #   may break current real-time/ongoing runs. Set to FALSE to avoid that 
 #
-# NEW_EXPTDIR:
-#   if FALSE, don't create a new $EXPDIR,just overwite same files
-#   under existing $EXPDIR; otherwise, rename/remove existing dir.
 #-----------------------------------------------------------------------
 #
 RUN_TASK_MAKE_GRID="TRUE"
@@ -1116,7 +1113,6 @@ NCORES_PER_NODE=24 #Jet default value
 IS_RTMA="FALSE"
 FG_ROOTDIR=""
 NEW_STMP="TRUE"
-NEW_EXPTDIR="TRUE"
 #
 #-----------------------------------------------------------------------
 #
