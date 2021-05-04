@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE workflow [
+
+<!ENTITY extrn_mdl_sysbasedir_lbcs "/public/data/grids/rap/full/wrfnat/grib2">
+<!ENTITY BOUNDARY_LEN_normal "18">
+<!ENTITY BOUNDARY_LEN_long "48">
+<!ENTITY FILE_AGE_SECONDS "300">
+
+]>
+
+<workflow realtime="F" scheduler="slurm" cyclethrottle="24" cyclelifespan="01:00:00:00">
+
+  <cycledef group="boundary_normal"> 00 0,2,4,6,8 4 5 2021 * </cycledef>
+  <cycledef group="boundary_long"> 00 1,3,5,7,9 4 5 2021 * </cycledef>
+
+  <log>
+    <cyclestr>/mnt/lfs4/BMC/wrfruc/gge/rtma/ufs-srweather-app/regional_workflow/ush/getextrn.log</cyclestr>
+  </log>
+
+  <metatask name="test">
+    <var name="len">&BOUNDARY_LEN_normal; &BOUNDARY_LEN_long;</var>
+    <var name="type">normal long </var>
+
+    <task name="get_extrn_lbcs_#type#" cycledefs="boundary_#type#" maxtries="1">
+
+      <account>wrfruc</account><queue>windfall</queue><partition>xjet</partition>
+      <command>sleep 5</command>
+      <walltime>00:05:00</walltime>
+      <memory>24G</memory>
+      <cores>1</cores>
+      <jobname>get_extrn_lbcs</jobname>
+      <join><cyclestr>/tmp/test_@Y@m@d@H.log</cyclestr></join>
+      <envar><name>type</name><value>#type#</value></envar>
+      <envar><name>len</name><value>#len#</value></envar>
+
+      <dependency>
+        <rb><cyclestr offset="-0:00:00">
+          knt=-1;for i in 0..#len#; 
+            f="&extrn_mdl_sysbasedir_lbcs;/@y@j@H000"+format('%03d',i)
+            if File.file?("#{f}") and (Time.now.to_i-File.mtime("#{f}").to_i&gt;&FILE_AGE_SECONDS;); knt+=1; end
+          end
+          if knt == #len#; 1==1; else; 1==2; end
+        </cyclestr></rb>
+      </dependency>
+
+    </task>
+
+   </metatask>
+
+</workflow>
