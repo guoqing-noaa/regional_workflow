@@ -426,13 +426,21 @@ WFLOW_LAUNCH_LOG_FN="log.launch_FV3LAM_wflow"
 # Set up frequenency or list of the forecast hours that FV3 should
 # generate the restart files.
 #
+# POSTPROC_LEN_HRS:
+# The length of post process, in integer hours.
+#
+# POSTPROC_LONG_LEN_HRS:
+# The length of long post process, in integer hours.
+#
 #-----------------------------------------------------------------------
 #
 DATE_FIRST_CYCL="YYYYMMDD"
 DATE_LAST_CYCL="YYYYMMDD"
 CYCL_HRS=( "HH1" "HH2" )
-BOUNDARY_LEN_HRS="24"
-BOUNDARY_LONG_LEN_HRS="24"
+BOUNDARY_LEN_HRS="0"
+BOUNDARY_LONG_LEN_HRS="0"
+POSTPROC_LEN_HRS="1"
+POSTPROC_LONG_LEN_HRS="1"
 FCST_LEN_HRS="24"
 FCST_LEN_HRS_CYCLES=( )
 DA_CYCLE_INTERV="3"
@@ -484,7 +492,15 @@ RESTART_INTERVAL="3,6"
 #
 # FORECAST_CYCLEDEF:
 # cycle definition for "forecast" group
-# This group runs: run_fcst, run_post, python_skewt, run_ncl, run_ncl_zip, run_clean
+# This group runs: run_fcst, python_skewt, run_clean
+#
+# POSTPROC_CYCLEDEF:
+# cycle definition for "postproc" group
+# This group runs: run_post, run_ncl, run_ncl_zip
+#
+# POSTPROC_LONG_CYCLEDEF:
+# cycle definition for "postproc" group
+# This group runs: run_post_long, run_ncl_long, run_ncl_long_zip
 #
 # ARCHIVE_CYCLEDEF:
 # cycle definition for "archive" group
@@ -492,6 +508,8 @@ RESTART_INTERVAL="3,6"
 #
 #-----------------------------------------------------------------------
 #
+CYCLEDAY="*"
+CYCLEMONTH="*"
 AT_START_CYCLEDEF="00 01 01 01 2100 *"
 INITIAL_CYCLEDEF="00 01 01 01 2100 *"
 BOUNDARY_CYCLEDEF="00 01 01 01 2100 *"
@@ -500,6 +518,8 @@ PREP_COLDSTART_CYCLEDEF="00 01 01 01 2100 *"
 PREP_WARMSTART_CYCLEDEF="00 01 01 01 2100 *"
 ANALYSIS_CYCLEDEF="00 01 01 01 2100 *"
 FORECAST_CYCLEDEF="00 01 01 01 2100 *"
+POSTPROC_CYCLEDEF="00 01 01 01 2100 *"
+POSTPROC_LONG_CYCLEDEF="00 01 01 01 2100 *"
 ARCHIVE_CYCLEDEF="00 01 01 01 2100 *"
 #
 #-------------------------------------------------------------------------------------
@@ -1472,10 +1492,10 @@ WTIME_RUN_PREPSTART="00:10:00"
 WTIME_RUN_FCST="04:30:00"
 WTIME_RUN_POST="00:15:00"
 WTIME_RUN_ANAL="00:30:00"
-WTIME_PROC_RADAR="00:10:00"
-WTIME_PROC_LIGHTNING="00:10:00"
-WTIME_PROC_BUFR="00:10:00"
-WTIME_RUN_REF2TTEN="00:10:00"
+WTIME_PROC_RADAR="00:25:00"
+WTIME_PROC_LIGHTNING="00:25:00"
+WTIME_PROC_BUFR="00:25:00"
+WTIME_RUN_REF2TTEN="00:20:00"
 WTIME_RUN_NONVARCLDANL="00:20:00"
 #
 # Memory.
@@ -1696,12 +1716,13 @@ DO_REFL2TTEN="FALSE"
 #-----------------------------------------------------------------------
 #
 # Parameters for observation preprocess.
-# MM?: minute from the hour that the NSSL mosaic files will be searched for 
+# RADARREFL_MINS:
+#   minute from the hour that the NSSL mosaic files will be searched for 
 #      data preprocess
+# RADARREFL_TIMELEVEL:
+#   time level (minute) from the hour that the NSSL mosaic files will be generated 
 #
 #-----------------------------------------------------------------------
 #
-MM0="00"
-MM1="01"
-MM2="02"
-MM3="03"
+RADARREFL_MINS=(0 1 2 3)
+RADARREFL_TIMELEVEL=(0)
