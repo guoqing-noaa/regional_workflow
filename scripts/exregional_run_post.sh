@@ -286,13 +286,22 @@ fi
 bgdawp=${postprd_dir}/${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
 bgrd3d=${postprd_dir}/${NET}.t${cyc}z.bgrd3df${fhr}.${tmmark}.grib2
 bgsfc=${postprd_dir}/${NET}.t${cyc}z.bgsfcf${fhr}.${tmmark}.grib2
-mv_vrfy BGDAWP.GrbF${post_fhr} ${bgdawp}
-mv_vrfy BGRD3D.GrbF${post_fhr} ${bgrd3d}
+bgspc=${postprd_dir}/${NET}.t${cyc}z.bgspcf${fhr}.${tmmark}.grib2
+# Append entire wrftwo to wrfprs
+cat WRFPRS.GrbF${post_fhr} WRFTWO.GrbF${post_fhr} > WRFPRS.GrbF${post_fhr}_tmp
+mv WRFPRS.GrbF${post_fhr}_tmp WRFPRS.GrbF${post_fhr}
+mv_vrfy WRFPRS.GrbF${post_fhr} ${bgdawp}
+mv_vrfy WRFNAT.GrbF${post_fhr} ${bgrd3d}
+mv_vrfy WRFTWO.GrbF${post_fhr} ${bgsfc}
 # small subset of surface fields for testbed and internal use
 #wgrib2 -match "APCP|parmcat=16 parm=196|PRATE" ${bgrd3d} -grib ${bgsfc}
-
-# extract the output fields for the testbed
-wgrib2 ${bgdawp} | grep -F -f ${FIXam}/testbed_fields_bgdawp.txt | wgrib2 -i -grib ${bgsfc} ${bgdawp}
+matchstr="parmcat=16 parm=196|(TMP|DPT):2 m above ground\
+|CAPE:(90|255)-0 mb above ground|CAPE:surface\
+|CIN:(90|255)-0 mb above ground|CIN:surface\
+|parmcat=7 parm=207|parmcat=7 parm=208\
+|parmcat=2 parm=234|parmcat=2 parm=235\
+"
+wgrib2 -match "${matchstr}" ${bgsfc} -grib "${bgspc}"
 
 #Link output for transfer to Jet
 # Should the following be done only if on jet??
@@ -326,7 +335,7 @@ if [ ${#ADDNL_OUTPUT_GRIDS[@]} -gt 0 ]; then
 
   for grid in ${ADDNL_OUTPUT_GRIDS[@]}
   do
-    for leveltype in dawp rd3d sfc 
+    for leveltype in dawp rd3d sfc spc
     do
       
       eval grid_specs=\$grid_specs_${grid}
