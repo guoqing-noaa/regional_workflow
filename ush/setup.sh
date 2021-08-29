@@ -338,6 +338,39 @@ fi
 #-----------------------------------------------------------------------
 #
 check_var_valid_value "DOT_OR_USCORE" "valid_vals_DOT_OR_USCORE"
+
+#
+#-----------------------------------------------------------------------
+#
+# Make sure the following options are set to a valid value.
+# Convert YES/yes/true to TRUE and NO/no/false to FALSE
+#
+#-----------------------------------------------------------------------
+#
+optionList[0]=DO_DACYCLE
+optionList[1]=DO_SURFACE_CYCLE
+optionList[2]=DO_RETRO
+optionList[3]=LBCS_ICS_ONLY
+optionList[4]=DO_NONVAR_CLDANAL
+optionList[5]=DO_REFL2TTEN
+
+obs_number=${#optionList[@]}
+for (( i=0; i<${obs_number}; i++ ));
+do
+  value2check=${optionList[$i]}
+  check_var_valid_value "$value2check" "valid_vals_$value2check"
+  eval value2change=\$$value2check
+  value2change=${value2change^^}
+  if [ "${value2change}" = "TRUE" ] ||
+     [ "${value2change}" = "YES" ]; then
+    value2change="TRUE"
+  elif [ "${value2change}" = "FALSE" ] ||
+       [ "${value2change}" = "NO" ]; then
+    value2change="FALSE"
+  fi
+  eval ${value2check}=${value2change}
+done
+
 #
 #-----------------------------------------------------------------------
 #
@@ -1211,6 +1244,7 @@ if [ "${RUN_ENVIR}" = "nco" ]; then
   check_for_preexist_dir_file "${CYCLE_BASEDIR}" "${PREEXISTING_DIR_METHOD}"
   COMROOT="$PTMP/com"
   COMOUT_BASEDIR="$COMROOT/$NET/$envir"
+  NWGES_BASEDIR="$NWGES/$envir/$NET"
 
   LOGDIR="${COMROOT}/logs/${NET}/${RUN}.@Y@m@d/@H"
 
@@ -1219,6 +1253,7 @@ else
   CYCLE_BASEDIR="$EXPTDIR"
   COMROOT=""
   COMOUT_BASEDIR=""
+  NWGES_BASEDIR="$CYCLE_BASEDIR"
 
 fi
 #
@@ -1306,6 +1341,30 @@ The CCPP suite definition file (CCPP_PHYS_SUITE_IN_CCPP_FP) does not exist
 in the local clone of the ufs-weather-model:
   CCPP_PHYS_SUITE_IN_CCPP_FP = \"${CCPP_PHYS_SUITE_IN_CCPP_FP}\""
 fi
+
+#
+#-----------------------------------------------------------------------
+#
+# Set:
+#
+# 1) the variable NEMS_YAML_FN to the name of the fd_nems.yaml 
+# 2) the variable NEMS_YAML_IN_PARM_FP to the full path of this 
+#    file in the forecast model's directory structure.
+# 3) the variable NEMS_YAML_FP to the full path of this file in 
+#    the experiment directory.
+#
+#-----------------------------------------------------------------------
+#
+NEMS_YAML_FN="fd_nems.yaml"
+NEMS_YAML_IN_PARM_FP="${UFS_WTHR_MDL_DIR}/tests/parm/${NEMS_YAML_FN}"
+NEMS_YAML_FP="${EXPTDIR}/${NEMS_YAML_FN}"
+if [ ! -f "${NEMS_YAML_IN_PARM_FP}" ]; then
+  print_err_msg_exit "\
+The (NEMS_YAML_IN_PARM_FP) does not exist
+in the local clone of the ufs-weather-model:
+  NEMS_YAML_IN_PARM_FP= \"${NEMS_YAML_IN_PARM_FP}\""
+fi
+
 #
 #-----------------------------------------------------------------------
 #
@@ -2538,6 +2597,7 @@ FV3_NML_FN="${FV3_NML_FN}"   # This may not be necessary...
 FV3_NML_FP="${FV3_NML_FP}"
 FV3_NML_RESTART_FP="${FV3_NML_RESTART_FP}"
 NEMS_CONFIG_FP="${NEMS_CONFIG_FP}"
+NEMS_YAML_FP="${NEMS_YAML_FP}"
 
 FV3_EXEC_FP="${FV3_EXEC_FP}"
 

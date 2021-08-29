@@ -57,6 +57,7 @@ hour zero).
 #
 valid_args=( \
 "lbcs_dir" \
+"lbcs_nwges_dir" \
 )
 process_args valid_args "$@"
 #
@@ -467,7 +468,7 @@ settings="
  'mosaic_file_target_grid': ${FIXLAM}/${CRES}${DOT_OR_USCORE}mosaic.halo$((10#${NH4})).nc,
  'orog_dir_target_grid': ${FIXLAM},
  'orog_files_target_grid': ${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo$((10#${NH4})).nc,
- 'vcoord_file_target_grid': ${FIXam}/L65_20mb.txt,
+ 'vcoord_file_target_grid': ${FIXam}/global_hyblev_fcst_rrfsL65.txt,
  'varmap_file': ${UFS_UTILS_DIR}/parm/varmap_tables/${varmap_file},
  'data_dir_input_grid': ${extrn_mdl_staging_dir},
  'atm_files_input_grid': ${fn_atm_nemsio},
@@ -539,6 +540,17 @@ located in the following directory:
   mv_vrfy gfs.bndy.nc ${lbcs_dir}/gfs_bndy.tile7.${fcst_hhh_FV3LAM}.nc
 
 done
+
+#
+#-----------------------------------------------------------------------
+#
+# copy results to nwges for longe time disk storage.
+#
+#-----------------------------------------------------------------------
+#
+
+cp_vrfy ${lbcs_dir}/gfs_bndy.tile7.*.nc ${lbcs_nwges_dir}/.
+   
 #
 #-----------------------------------------------------------------------
 #

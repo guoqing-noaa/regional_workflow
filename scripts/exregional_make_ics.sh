@@ -57,6 +57,7 @@ This is the ex-script for the task that generates initial condition
 #
 valid_args=( \
 "ics_dir" \
+"ics_nwges_dir" \
 )
 process_args valid_args "$@"
 #
@@ -421,7 +422,7 @@ case "${EXTRN_MDL_NAME_ICS}" in
   vgfrc_from_climo=True
   minmax_vgfrc_from_climo=True
   lai_from_climo=True
-  tg3_from_soil=False
+  tg3_from_soil=True
   ;;
 
 "HRRR")
@@ -538,7 +539,7 @@ settings="
  'mosaic_file_target_grid': ${FIXLAM}/${CRES}${DOT_OR_USCORE}mosaic.halo$((10#${NH4})).nc,
  'orog_dir_target_grid': ${FIXLAM},
  'orog_files_target_grid': ${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo$((10#${NH4})).nc,
- 'vcoord_file_target_grid': ${FIXam}/L65_20mb.txt,
+ 'vcoord_file_target_grid': ${FIXam}/global_hyblev_fcst_rrfsL65.txt,
  'varmap_file': ${UFS_UTILS_DIR}/parm/varmap_tables/${varmap_file},
  'data_dir_input_grid': ${extrn_mdl_staging_dir},
  'atm_files_input_grid': ${fn_atm_nemsio},
@@ -666,6 +667,17 @@ The following variables were being used:
   fvcom_exe_dir = \"${fvcom_exe_dir}\"
   fvcom_exe = \"${fvcom_exe}\""
 fi
+
+#
+#-----------------------------------------------------------------------
+#
+# copy results to nwges for longe time disk storage.
+#
+#-----------------------------------------------------------------------
+#
+
+cp_vrfy ${ics_dir}/*.nc ${ics_nwges_dir}/.
+
 #
 #-----------------------------------------------------------------------
 #

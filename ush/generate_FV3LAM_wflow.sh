@@ -190,9 +190,12 @@ settings="\
   'make_lbcs_tn': ${MAKE_LBCS_TN}
   'run_fcst_tn': ${RUN_FCST_TN}
   'run_post_tn': ${RUN_POST_TN}
+  'run_wgrib2_tn': ${RUN_WGRIB2_TN}
   'anal_gsi': ${ANAL_GSI_TN}
-  'prep_coldstart': ${PREP_COLDSTART_TN}
-  'prep_warmstart': ${PREP_WARMSTART_TN}
+  'prep_start': ${PREP_START_TN}
+  'prep_cyc_spinup': ${PREP_CYC_SPINUP_TN}
+  'prep_cyc_prod': ${PREP_CYC_PROD_TN}
+  'prep_cyc': ${PREP_CYC_TN}
   'process_radarref': ${PROCESS_RADAR_REF_TN}
   'process_lightning': ${PROCESS_LIGHTNING_TN}
   'process_bufr': ${PROCESS_BUFR_TN}
@@ -213,6 +216,7 @@ settings="\
   'nnodes_run_fcst': ${NNODES_RUN_FCST}
   'nnodes_run_anal': ${NNODES_RUN_ANAL}
   'nnodes_run_post': ${NNODES_RUN_POST}
+  'nnodes_run_wgrib2': ${NNODES_RUN_WGRIB2}
   'nnodes_proc_radar': ${NNODES_PROC_RADAR}
   'nnodes_proc_lightning': ${NNODES_PROC_LIGHTNING}
   'nnodes_proc_bufr': ${NNODES_PROC_BUFR}
@@ -223,9 +227,9 @@ settings="\
 # Number of cores used for a task
 #
   'ncores_run_fcst': ${PE_MEMBER01}
-  'native_run_fcst': --cpus-per-task 2 --exclusive
+  'native_run_fcst': ${NATIVE_RUN_FCST}
   'ncores_run_anal': ${NCORES_RUN_ANAL}
-  'native_run_anal': --cpus-per-task 2 --exclusive
+  'native_run_anal': ${NATIVE_RUN_ANAL}
 #
 # Number of logical processes per node for each task.  If running without
 # threading, this is equal to the number of MPI processes per node.
@@ -241,6 +245,7 @@ settings="\
   'ppn_run_fcst': ${PPN_RUN_FCST}
   'ppn_run_anal': ${PPN_RUN_ANAL}
   'ppn_run_post': ${PPN_RUN_POST}
+  'ppn_run_wgrib2': ${PPN_RUN_WGRIB2}
   'ppn_proc_radar': ${PPN_PROC_RADAR}
   'ppn_proc_lightning': ${PPN_PROC_LIGHTNING}
   'ppn_proc_bufr': ${PPN_PROC_BUFR}
@@ -261,6 +266,7 @@ settings="\
   'wtime_run_fcst': ${WTIME_RUN_FCST}
   'wtime_run_anal': ${WTIME_RUN_ANAL}
   'wtime_run_post': ${WTIME_RUN_POST}
+  'wtime_run_wgrib2': ${WTIME_RUN_WGRIB2}
   'wtime_proc_radar': ${WTIME_PROC_RADAR}
   'wtime_proc_lightning': ${WTIME_PROC_LIGHTNING}
   'wtime_proc_bufr': ${WTIME_PROC_BUFR}
@@ -271,6 +277,7 @@ settings="\
 #
   'memo_run_ref2tten': ${MEMO_RUN_REF2TTEN}
   'memo_run_nonvarcldanl': ${MEMO_RUN_NONVARCLDANL}
+  'memo_run_wgrib2': ${MEMO_RUN_WGRIB2}
 #
 # Maximum number of tries for each task.
 #
@@ -285,6 +292,7 @@ settings="\
   'maxtries_run_fcst': ${MAXTRIES_RUN_FCST}
   'maxtries_anal_gsi': ${MAXTRIES_ANAL_GSI}
   'maxtries_run_post': ${MAXTRIES_RUN_POST}
+  'maxtries_run_wgrib2': ${MAXTRIES_RUN_WGRIB2}
   'maxtries_process_radarref': ${MAXTRIES_PROCESS_RADARREF}
   'maxtries_process_lightning': ${MAXTRIES_PROCESS_LIGHTNING}
   'maxtries_process_bufr': ${MAXTRIES_PROCESS_BUFR}
@@ -309,6 +317,7 @@ settings="\
   'jobsdir': $JOBSDIR
   'logdir': $LOGDIR
   'cycle_basedir': ${CYCLE_BASEDIR}
+  'nwges_basedir': ${NWGES_BASEDIR}
   'global_var_defns_fp': ${GLOBAL_VAR_DEFNS_FP}
   'load_modules_run_task_fp': ${LOAD_MODULES_RUN_TASK_FP}
 #
@@ -332,22 +341,22 @@ settings="\
   'cdate_first_arch': !datetime ${DATE_FIRST_CYCL}07
   'cdate_last_arch': !datetime ${DATE_LAST_CYCL}07
   'cycl_hrs': [ $( printf "\'%s\', " "${CYCL_HRS[@]}" ) ]
+  'cycl_hrs_spinstart': [ $( printf "\'%s\', " "${CYCL_HRS_SPINSTART[@]}" ) ]
+  'cycl_hrs_prodstart': [ $( printf "\'%s\', " "${CYCL_HRS_PRODSTART[@]}" ) ]
   'cycl_freq': !!str 12:00:00
   'at_start_cycledef': ${AT_START_CYCLEDEF}
   'initial_cycledef': ${INITIAL_CYCLEDEF}
   'boundary_cycledef': ${BOUNDARY_CYCLEDEF}
   'boundary_long_cycledef': ${BOUNDARY_LONG_CYCLEDEF}
-  'prep_coldstart_cycledef': ${PREP_COLDSTART_CYCLEDEF}
-  'prep_warmstart_cycledef': ${PREP_WARMSTART_CYCLEDEF}
-  'analysis_cycledef': ${ANALYSIS_CYCLEDEF}
-  'forecast_cycledef': ${FORECAST_CYCLEDEF}
-  'postproc_cycledef': ${POSTPROC_CYCLEDEF}
+  'spinup_cycledef': ${SPINUP_CYCLEDEF}
+  'prod_cycledef': ${PROD_CYCLEDEF}
   'postproc_long_cycledef': ${POSTPROC_LONG_CYCLEDEF}
   'archive_cycledef': ${ARCHIVE_CYCLEDEF}
 #
 # boundary, forecast, and post process length.
 #
   'fcst_len_hrs': ${FCST_LEN_HRS}
+  'fcst_len_hrs_spinup': ${FCST_LEN_HRS_SPINUP}
   'boundary_len_hrs': ${BOUNDARY_LEN_HRS}
   'boundary_long_len_hrs': ${BOUNDARY_LONG_LEN_HRS}
   'postproc_len_hrs': ${POSTPROC_LEN_HRS}
@@ -365,9 +374,11 @@ settings="\
 # data assimilation related parameters.
 #
   'do_dacycle': ${DO_DACYCLE}
+  'do_surface_cycle': ${DO_SURFACE_CYCLE}
   'da_cycle_interval_hrs': ${DA_CYCLE_INTERV}
   'do_nonvar_cldanal': ${DO_NONVAR_CLDANAL}
   'do_refl2tten': ${DO_REFL2TTEN}
+  'do_spinup': ${DO_SPINUP}
 #
 # graphics related parameters
 #
@@ -499,7 +510,7 @@ fi
 #
 if [ "${RUN_ENVIR}" = "nco" ]; then
 
-  if [ "${DO_DACYCLE}" = "true" ]; then
+  if [ "${DO_DACYCLE}" = "TRUE" ]; then
 # Resolve the target directory that the FIXgsi symlink points to
     ln_vrfy -fsn "$FIX_GSI" "$FIXgsi"
 
@@ -602,6 +613,15 @@ print_info_msg "$VERBOSE" "
 Copying the CCPP physics suite definition XML file from its location in
 the forecast model directory sturcture to the experiment directory..."
 cp_vrfy "${CCPP_PHYS_SUITE_IN_CCPP_FP}" "${CCPP_PHYS_SUITE_FP}"
+
+#
+# copy nems.yaml from its location in the
+# clone of the FV3 code repository to the experiment directory
+#
+print_info_msg "$VERBOSE" "
+Copying the nems.yaml from its location in
+the forecast model directory sturcture to the experiment directory..."
+cp_vrfy "${NEMS_YAML_IN_PARM_FP}" "${NEMS_YAML_FP}"
 #
 #-----------------------------------------------------------------------
 #
@@ -649,6 +669,10 @@ fi
 lsoil="4"
 if [ "${EXTRN_MDL_NAME_ICS}" = "HRRR" -o \
      "${EXTRN_MDL_NAME_ICS}" = "RAP" ] && \
+   [ "${SDF_USES_RUC_LSM}" = "TRUE" ]; then
+  lsoil="9"
+fi
+if [ "${DO_SURFACE_CYCLE}" = "TRUE" ] && \
    [ "${SDF_USES_RUC_LSM}" = "TRUE" ]; then
   lsoil="9"
 fi
@@ -837,7 +861,7 @@ for the various ensemble members failed."
 
 fi
 
-if [ "${DO_DACYCLE}" = "true" ]; then
+if [ "${DO_DACYCLE}" = "TRUE" ]; then
 # need to generate a namelist for da cycle
  settings="\
  'fv_core_nml': {
@@ -847,10 +871,11 @@ if [ "${DO_DACYCLE}" = "true" ]; then
      'nggps_ic'   : false,
      'mountain'  : true,
      'warm_start' : true,
-   }
- 'gfs_physics_nml': {
-    'fh_dfi_radar': [${FH_DFI_RADAR[@]}],
-  }"
+   }"
+# commnet out for using current develop branch that has no radar tten code yet.
+# 'gfs_physics_nml': {
+#    'fh_dfi_radar': [${FH_DFI_RADAR[@]}],
+#  }"
  
  $USHDIR/set_namelist.py -q \
                          -n ${FV3_NML_FP} \

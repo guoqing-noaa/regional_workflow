@@ -66,6 +66,7 @@ specified cycle.
 #
 valid_args=( \
 "cdate" \
+"cycle_type" \
 "cycle_dir" \
 "ensmem_indx" \
 "slash_ensmem_subdir" \
@@ -124,7 +125,11 @@ case $MACHINE in
     ulimit -s unlimited
     ulimit -a
     APRUN="srun"
-    OMP_NUM_THREADS=2
+    if [ "${PREDEF_GRID_NAME}" == "RRFS_NA_3km" ]; then
+      OMP_NUM_THREADS=4
+    else
+      OMP_NUM_THREADS=2
+    fi
     ;;
 
   "ODIN")
@@ -336,7 +341,7 @@ of the current run directory (run_dir), where
 ..."
 
 BKTYPE=1    # cold start using INPUT
-if [ -r ${CYCLE_DIR}/fcst_fv3lam/INPUT/fv_tracer.res.tile1.nc ]; then
+if [ -r ${run_dir}/INPUT/fv_tracer.res.tile1.nc ]; then
   BKTYPE=0  # cycling using RESTART
 fi
 print_info_msg "$VERBOSE" "
@@ -459,6 +464,7 @@ fi
 ln_vrfy -sf ${relative_or_null} ${DATA_TABLE_FP} ${run_dir}
 ln_vrfy -sf ${relative_or_null} ${FIELD_TABLE_FP} ${run_dir}
 ln_vrfy -sf ${relative_or_null} ${NEMS_CONFIG_FP} ${run_dir}
+ln_vrfy -sf ${relative_or_null} ${NEMS_YAML_FP} ${run_dir}
 
 if [ "${DO_ENSEMBLE}" = TRUE ]; then
   ln_vrfy -sf ${relative_or_null} "${FV3_NML_ENSMEM_FPS[$(( 10#${ensmem_indx}-1 ))]}" ${run_dir}/${FV3_NML_FN}
@@ -481,6 +487,7 @@ fi
 #
 create_model_configure_file \
   cdate="$cdate" \
+  cycle_type="$cycle_type" \
   nthreads=${OMP_NUM_THREADS:-1} \
   run_dir="${run_dir}" || print_err_msg_exit "\
 Call to function to create a model configuration file for the current
@@ -541,7 +548,7 @@ export OMP_STACKSIZE=1024m
 #
 #-----------------------------------------------------------------------
 #
-if [[ -f phy_data.nc ]] && [[ -z ${FH_DFI_RADAR} || ${FH_DFI_RADAR} -lt 0 ]]; then
+if [[ -f phy_data.nc ]] ; then
   echo "convert phy_data.nc from NetCDF4 to NetCDF3"
   cd INPUT
   rm -f phy_data.nc3 phy_data.nc4

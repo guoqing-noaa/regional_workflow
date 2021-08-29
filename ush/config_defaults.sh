@@ -239,6 +239,14 @@ EXPT_SUBDIR=""
 # 
 #   $PTMP/com/$NET/$envir/$RUN.$yyyymmdd/$hh
 #
+# NWGES:
+# The beginning portion of the directory that will contain the output 
+# files from the forecast for a given cycle.  For a cycle 
+# that starts on the date specified by yyyymmdd and hour specified by hh
+# (where yyyymmdd and hh are as described above), the directory in which
+# the forecast output files will be placed will be:
+#   $NWGES/$NET/$envir/$RUN.$yyyymmdd/$hh
+# 
 # Setup default observation locations for data assimilation:
 #
 #    OBSPATH:   observation BUFR file path
@@ -256,6 +264,7 @@ envir="para"
 RUN="experiment_name"
 TAG="dev_grid"
 PTMP="/base/path/of/directory/containing/postprocessed/output/files"
+NWGES="/base/path/of/directory/containing/model/output/files"
 
 ARCHIVEDIR="/5year/BMC/wrfruc/rrfs_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
@@ -408,6 +417,13 @@ WFLOW_LAUNCH_LOG_FN="log.launch_FV3LAM_wflow"
 # two-digit string representing an integer that is less than or equal to
 # 23, e.g. "00", "03", "12", "23".
 #
+# CYCL_HRS_SPINSTART:
+# An array containing the hours of the day at which the spin up cycle starts.
+#
+# CYCL_HRS_PRODSTART:
+# An array containing the hours of the day at which the product cycle starts,
+# from cold start input or from spin-up cycle forcast
+#
 # BOUNDARY_LEN_HRS
 # The length of boundary condition for normal forecast, in integer hours.
 #
@@ -416,6 +432,9 @@ WFLOW_LAUNCH_LOG_FN="log.launch_FV3LAM_wflow"
 #
 # FCST_LEN_HRS:
 # The length of each forecast, in integer hours.
+#
+# FCST_LEN_HRS_SPINUP:
+# The length of each forecast in spin up cycles, in integer hours.
 #
 # FCST_LEN_HRS_CYCLES:
 # The length of forecast for each cycle, in integer hours.
@@ -439,11 +458,14 @@ WFLOW_LAUNCH_LOG_FN="log.launch_FV3LAM_wflow"
 DATE_FIRST_CYCL="YYYYMMDD"
 DATE_LAST_CYCL="YYYYMMDD"
 CYCL_HRS=( "HH1" "HH2" )
+CYCL_HRS_SPINSTART=( "HH1" "HH2" )
+CYCL_HRS_PRODSTART=( "HH1" "HH2" )
 BOUNDARY_LEN_HRS="0"
 BOUNDARY_LONG_LEN_HRS="0"
 POSTPROC_LEN_HRS="1"
 POSTPROC_LONG_LEN_HRS="1"
 FCST_LEN_HRS="24"
+FCST_LEN_HRS_SPINUP="1"
 FCST_LEN_HRS_CYCLES=( )
 DA_CYCLE_INTERV="3"
 RESTART_INTERVAL="3,6"
@@ -480,21 +502,13 @@ RESTART_INTERVAL="3,6"
 # cycle definition for "boundary_long" group
 # This group runs: get_extrn_lbcs_long,make_lbcs
 #
-# PREP_COLDSTART_CYCLEDEF:
-# cycle definition for "prep_coldstart" group
-# This group runs: prep_coldstart
+# SPINUP_CYCLEDEF:
+# cycle definition for spin-up cycle group
+# This group runs: anal_gsi_input_spinup and data process, run_fcst_spinup, run_post_spinup
 #
-# PREP_WARMSTART_CYCLEDEF:
-# cycle definition for "prep_warmstart" group
-# This group runs: prep_warmstart
-#
-# ANALYSIS_CYCLEDEF:
-# cycle definition for "analysis" group
-# This group runs: anal_gsi_input
-#
-# FORECAST_CYCLEDEF:
-# cycle definition for "forecast" group
-# This group runs: run_fcst, python_skewt, run_clean
+# PROD_CYCLEDEF:
+# cycle definition for product cycle group
+# This group runs: anal_gsi_input and data process, run_fcst, python_skewt, run_clean
 #
 # POSTPROC_CYCLEDEF:
 # cycle definition for "postproc" group
@@ -516,10 +530,8 @@ AT_START_CYCLEDEF="00 01 01 01 2100 *"
 INITIAL_CYCLEDEF="00 01 01 01 2100 *"
 BOUNDARY_CYCLEDEF="00 01 01 01 2100 *"
 BOUNDARY_LONG_CYCLEDEF="00 01 01 01 2100 *"
-PREP_COLDSTART_CYCLEDEF="00 01 01 01 2100 *"
-PREP_WARMSTART_CYCLEDEF="00 01 01 01 2100 *"
-ANALYSIS_CYCLEDEF="00 01 01 01 2100 *"
-FORECAST_CYCLEDEF="00 01 01 01 2100 *"
+SPINUP_CYCLEDEF="00 01 01 01 2100 *"
+PROD_CYCLEDEF="00 01 01 01 2100 *"
 POSTPROC_CYCLEDEF="00 01 01 01 2100 *"
 POSTPROC_LONG_CYCLEDEF="00 01 01 01 2100 *"
 ARCHIVE_CYCLEDEF="00 01 01 01 2100 *"
@@ -545,7 +557,8 @@ beta1_inv=0.15                 #beata_inv is 1-ensemble_wgt
 ens_h=110
 ens_v=3
 regional_ensemble_option=1     #1 for GDAS
-grid_ratio_ens=3               #analysis 3km, so ensemble=3*3=9km. GDAS ensemble is 20km
+grid_ratio_fv3=2.0             #fv3 resolution 3km, so analysis=3*2=6km
+grid_ratio_ens=3               #if analysis is 3km, then ensemble=3*3=9km. GDAS ensemble is 20km
 i_en_perts_io=1                #0 or 1: original file   3: pre-processed ensembles
 
 # &RAPIDREFRESH_CLDSURF
@@ -1212,8 +1225,8 @@ VERBOSE="TRUE"
 #   If true, some ICs,LBCs,GSI rocoto tasks will be turned off
 #
 # FG_ROOTDIR:
-#  First Guess Root Directory, GSI will find corresponding first guess
-#  fields from this directory. RRFS will find FG under CYCLE_BASEDIR,
+#  First Guess Root Directory, APP will find corresponding first guess
+#  fields from this directory. RRFS will find FG under NWGES_BASEDIR,
 #  but we needs to explicitly specify where to find FG for RTMA.
 #  So this parameter only matters for RTMA
 #
@@ -1438,10 +1451,13 @@ MAKE_ICS_TN="make_ics"
 MAKE_LBCS_TN="make_lbcs"
 RUN_FCST_TN="run_fcst"
 RUN_POST_TN="run_post"
+RUN_WGRIB2_TN="run_wgrib2"
 
 ANAL_GSI_TN="anal_gsi_input"
-PREP_COLDSTART_TN="prep_coldstart"
-PREP_WARMSTART_TN="prep_warmstart"
+PREP_START_TN="prep_start"
+PREP_CYC_SPINUP_TN="prep_cyc_spinup"
+PREP_CYC_PROD_TN="prep_cyc_prod"
+PREP_CYC_TN="prep_cyc"
 PROCESS_RADAR_REF_TN="process_radarref"
 PROCESS_LIGHTNING_TN="process_lightning"
 PROCESS_BUFR_TN="process_bufr"
@@ -1460,6 +1476,7 @@ NNODES_MAKE_LBCS="4"
 NNODES_RUN_PREPSTART="1"
 NNODES_RUN_FCST=""  # This is calculated in the workflow generation scripts, so no need to set here.
 NNODES_RUN_POST="2"
+NNODES_RUN_WGRIB2="1"
 NNODES_RUN_ANAL="16"
 NNODES_PROC_RADAR="2"
 NNODES_PROC_LIGHTNING="1"
@@ -1471,6 +1488,8 @@ NNODES_RUN_GRAPHICS="1"
 # Number of cores.
 #
 NCORES_RUN_ANAL="4"
+NATIVE_RUN_FCST="--cpus-per-task 2 --exclusive"
+NATIVE_RUN_ANAL="--cpus-per-task 2 --exclusive"
 #
 # Number of MPI processes per node.
 #
@@ -1484,13 +1503,14 @@ PPN_MAKE_LBCS="12"
 PPN_RUN_PREPSTART="1"
 PPN_RUN_FCST="24"  # This may have to be changed depending on the number of threads used.
 PPN_RUN_POST="24"
+PPN_RUN_WGRIB2="1"
 PPN_RUN_ANAL="24"
 PPN_PROC_RADAR="24"
 PPN_PROC_LIGHTNING="1"
 PPN_PROC_BUFR="1"
 PPN_RUN_REF2TTEN="1"
 PPN_RUN_NONVARCLDANL="1"
-PPN_RUN_GRAPHICS="24"
+PPN_RUN_GRAPHICS="12"
 #
 # Walltimes.
 #
@@ -1504,6 +1524,7 @@ WTIME_MAKE_LBCS="01:30:00"
 WTIME_RUN_PREPSTART="00:10:00"
 WTIME_RUN_FCST="04:30:00"
 WTIME_RUN_POST="00:15:00"
+WTIME_RUN_WGRIB2="00:40:00"
 WTIME_RUN_ANAL="00:30:00"
 WTIME_PROC_RADAR="00:25:00"
 WTIME_PROC_LIGHTNING="00:25:00"
@@ -1515,6 +1536,7 @@ WTIME_RUN_NONVARCLDANL="00:20:00"
 #
 MEMO_RUN_REF2TTEN="10G"
 MEMO_RUN_NONVARCLDANL="20G"
+MEMO_RUN_WGRIB2="24G"
 #
 # Maximum number of attempts.
 #
@@ -1529,6 +1551,7 @@ MAXTRIES_RUN_PREPSTART="1"
 MAXTRIES_RUN_FCST="1"
 MAXTRIES_ANAL_GSI="1"
 MAXTRIES_RUN_POST="1"
+MAXTRIES_RUN_WGRIB2="1"
 MAXTRIES_RUN_ANAL="1"
 MAXTRIES_PROCESS_RADARREF="1"
 MAXTRIES_PROCESS_LIGHTNING="1"
@@ -1652,7 +1675,11 @@ NUM_ENS_MEMBERS="1"
 # DO_DACYCLE:
 # Flag that determines whether to run a data assimilation cycle.
 #
+# DO_SURFACE_CYCLE:
+# Flag that determines whether to continue cycle surface fields.
+#
 DO_DACYCLE="FALSE"
+DO_SURFACE_CYCLE="FALSE"
 #
 #-----------------------------------------------------------------------
 #
@@ -1661,11 +1688,15 @@ DO_DACYCLE="FALSE"
 # DO_RETRO:
 # Flag turn on the retrospective experiments.
 #
+# DO_SPINUP:
+# Flag turn on the spin-up cycle.
+#
 # LBCS_ICS_ONLY:
 # Flag turn on the runs prepare boundary and cold start initial conditions in
 #      retrospective experiments.
 #
 DO_RETRO="FALSE"
+DO_SPINUP="FALSE"
 LBCS_ICS_ONLY="FALSE"
 #
 #-----------------------------------------------------------------------
@@ -1802,7 +1833,8 @@ RADARREFL_TIMELEVEL=(0)
 #
 
 CLEAN_OLDPROD_HRS="72"
-CLEAN_OLDLOG_HRS="48"
-CLEAN_OLDRUN_HRS="72"
+CLEAN_OLDLOG_HRS="72"
+CLEAN_OLDRUN_HRS="48"
 CLEAN_OLDFCST_HRS="24"
 CLEAN_OLDSTMPPOST_HRS="24"
+CLEAN_NWGES_HRS="72"

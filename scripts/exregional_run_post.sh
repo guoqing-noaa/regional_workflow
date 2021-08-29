@@ -58,10 +58,13 @@ the output files corresponding to a specified forecast hour.
 valid_args=( \
 "cdate" \
 "run_dir" \
+"nwges_dir" \
 "postprd_dir" \
 "comout" \
 "fhr_dir" \
 "fhr" \
+"tmmark" \
+"cycle_type" \
 )
 process_args valid_args "$@"
 #
@@ -183,10 +186,17 @@ forecast hour directory (fhr_dir):
 fi
 cp_vrfy ${post_config_fp} ./postxconfig-NT.txt
 cp_vrfy ${post_params_fp} ./params_grib2_tbl_new
-cp_vrfy ${EXECDIR}/ncep_post .
+cp_vrfy ${EXECDIR}/upp.x .
 if [ -f ${FFG_DIR}/latest.FFG ] && [ ${NET} = "RRFS_CONUS" ]; then
   cp_vrfy ${FFG_DIR}/latest.FFG .
   grid_specs_rrfs="lambert:-97.5:38.500000 237.826355:1746:3000 21.885885:1014:3000"
+  wgrib2 latest.FFG -match "0-12 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_12h.grib2
+  wgrib2 latest.FFG -match "0-6 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_06h.grib2
+  wgrib2 latest.FFG -match "0-3 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_03h.grib2
+  wgrib2 latest.FFG -match "0-1 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_01h.grib2
+elif [ -f ${FFG_DIR}/latest.FFG ] && [ ${NET} = "RRFS_NA_3km" ]; then
+  cp_vrfy ${FFG_DIR}/latest.FFG .
+  grid_specs_rrfs="rot-ll:248.000000:-42.000000:0.000000 309.000000:4081:0.025000 -33.0000000:2641:0.025000"
   wgrib2 latest.FFG -match "0-12 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_12h.grib2
   wgrib2 latest.FFG -match "0-6 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_06h.grib2
   wgrib2 latest.FFG -match "0-3 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_03h.grib2
@@ -203,17 +213,6 @@ fi
 yyyymmdd=${cdate:0:8}
 hh=${cdate:8:2}
 cyc=$hh
-#
-#-----------------------------------------------------------------------
-#
-# The tmmark is a reference value used in real-time, DA-enabled NCEP models.
-# It represents the delay between the onset of the DA cycle and the free
-# forecast.  With no DA in the SRW App at the moment, it is hard-wired to
-# tm00 for now. 
-#
-#-----------------------------------------------------------------------
-#
-tmmark="tm00"
 #
 #-----------------------------------------------------------------------
 #
@@ -243,6 +242,51 @@ ${phy_file}
  KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
  /
 EOF
+
+# 
+#-----------------------------------------------------------------------
+#
+# Let save the restart files if needed before run post.
+# This part will copy or move restart files matching the forecast hour
+# this post will process to the nwges directory. The nwges is used to 
+# stage the restart files for a long time. 
+#-----------------------------------------------------------------------
+#
+filelist="fv_core.res.nc fv_core.res.tile1.nc fv_srf_wnd.res.tile1.nc fv_tracer.res.tile1.nc phy_data.nc sfc_data.nc coupler.res"
+restart_prefix=${post_yyyy}${post_mm}${post_dd}.${post_hh}0000
+if [ ! -r ${nwges_dir}/INPUT/gfs_ctrl.nc ]; then
+    cp_vrfy $run_dir/INPUT/gfs_ctrl.nc ${nwges_dir}/INPUT/gfs_ctrl.nc
+fi
+if [ -r "$run_dir/RESTART/${restart_prefix}.coupler.res" ]; then
+  for file in ${filelist}; do
+    cp_vrfy $run_dir/RESTART/${restart_prefix}.${file} ${nwges_dir}/RESTART/${restart_prefix}.${file}
+  done
+  echo " ${fhr} forecast from ${yyyymmdd}${hh} is ready " #> ${nwges_dir}/RESTART/restart_done_f${fhr}
+else
+
+  FCST_LEN_HRS_thiscycle=${FCST_LEN_HRS}
+  if [ ${cycle_type} == "spinup" ]; then
+    FCST_LEN_HRS_thiscycle=${FCST_LEN_HRS_SPINUP}
+  else
+    num_fhrs=( "${#FCST_LEN_HRS_CYCLES[@]}" )
+    ihh=`expr ${hh} + 0`
+    if [ ${num_fhrs} -gt ${ihh} ]; then
+       FCST_LEN_HRS_thiscycle=${FCST_LEN_HRS_CYCLES[${ihh}]}
+    fi
+  fi
+  print_info_msg "$VERBOSE" " The forecast length for cycle (\"${hh}\") is
+                 ( \"${FCST_LEN_HRS_thiscycle}\") "
+
+  if [ -r "$run_dir/RESTART/coupler.res" ] && [ ${fhr} -eq ${FCST_LEN_HRS_thiscycle} ] ; then
+    for file in ${filelist}; do
+      cp_vrfy $run_dir/RESTART/${file} ${nwges_dir}/RESTART/${restart_prefix}.${file}
+    done
+    echo " ${fhr} forecast from ${yyyymmdd}${hh} is ready " #> ${nwges_dir}/RESTART/restart_done_f${fhr}
+  else
+    echo "This forecast hour does not need to save restart: ${yyyymmdd}${hh}f${fhr}"
+  fi
+fi
+#
 #
 #-----------------------------------------------------------------------
 #
@@ -253,7 +297,7 @@ EOF
 print_info_msg "$VERBOSE" "
 Starting post-processing for fhr = $fhr hr..."
 
-${APRUN} ./ncep_post < itag || print_err_msg_exit "\
+${APRUN} ./upp.x < itag || print_err_msg_exit "\
 Call to executable to run post for forecast hour $fhr returned with non-
 zero exit code."
 #
@@ -290,98 +334,11 @@ fi
 bgdawp=${postprd_dir}/${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
 bgrd3d=${postprd_dir}/${NET}.t${cyc}z.bgrd3df${fhr}.${tmmark}.grib2
 bgsfc=${postprd_dir}/${NET}.t${cyc}z.bgsfcf${fhr}.${tmmark}.grib2
-bgspc=${postprd_dir}/${NET}.t${cyc}z.bgspcf${fhr}.${tmmark}.grib2
-# Append entire wrftwo to wrfprs
-cat WRFPRS.GrbF${post_fhr} WRFTWO.GrbF${post_fhr} > WRFPRS.GrbF${post_fhr}_tmp
-mv WRFPRS.GrbF${post_fhr}_tmp WRFPRS.GrbF${post_fhr}
-mv_vrfy WRFPRS.GrbF${post_fhr} ${bgdawp}
-mv_vrfy WRFNAT.GrbF${post_fhr} ${bgrd3d}
-mv_vrfy WRFTWO.GrbF${post_fhr} ${bgsfc}
+mv_vrfy BGDAWP.GrbF${post_fhr} ${bgdawp}
+mv_vrfy BGRD3D.GrbF${post_fhr} ${bgrd3d}
 # small subset of surface fields for testbed and internal use
 #wgrib2 -match "APCP|parmcat=16 parm=196|PRATE" ${bgrd3d} -grib ${bgsfc}
-matchstr="parmcat=16 parm=196|(TMP|DPT):2 m above ground\
-|CAPE:(90|255)-0 mb above ground|CAPE:surface\
-|CIN:(90|255)-0 mb above ground|CIN:surface\
-|parmcat=7 parm=207|parmcat=7 parm=208\
-|parmcat=2 parm=234|parmcat=2 parm=235\
-"
-wgrib2 -match "${matchstr}" ${bgsfc} -grib "${bgspc}"
 
-#Link output for transfer to Jet
-# Should the following be done only if on jet??
-
-# Seems like start_date is the same as "$yyyymmdd $hh", where yyyymmdd
-# and hh are calculated above, i.e. start_date is just cdate but with a
-# space inserted between the dd and hh.  If so, just use "$yyyymmdd $hh"
-# instead of calling sed.
-basetime=$( date +%y%j%H%M -d "${yyyymmdd} ${hh}" )
-cp_vrfy ${bgdawp} ${comout}/${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
-cp_vrfy ${bgrd3d} ${comout}/${NET}.t${cyc}z.bgrd3df${fhr}.${tmmark}.grib2
-cp_vrfy ${bgsfc}  ${comout}/${NET}.t${cyc}z.bgsfcf${fhr}.${tmmark}.grib2
-ln_vrfy -sf --relative ${comout}/${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2 ${comout}/BGDAWP_${basetime}${post_fhr}00
-ln_vrfy -sf --relative ${comout}/${NET}.t${cyc}z.bgrd3df${fhr}.${tmmark}.grib2 ${comout}/BGRD3D_${basetime}${post_fhr}00
-ln_vrfy -sf --relative ${comout}/${NET}.t${cyc}z.bgsfcf${fhr}.${tmmark}.grib2  ${comout}/BGSFC_${basetime}${post_fhr}00
-
-# Remap to additional output grids if requested
-if [ ${#ADDNL_OUTPUT_GRIDS[@]} -gt 0 ]; then
-
-  cd_vrfy ${comout}
-
-  grid_specs_130="lambert:265:25.000000 233.862000:451:13545.000000 16.281000:337:13545.000000"
-  grid_specs_200="lambert:253:50.000000 285.720000:108:16232.000000 16.201000:94:16232.000000"
-  grid_specs_221="lambert:253:50.000000 214.500000:349:32463.000000 1.000000:277:32463.000000"
-  grid_specs_242="nps:225:60.000000 187.000000:553:11250.000000 30.000000:425:11250.000000"
-  grid_specs_243="latlon 190.0:126:0.400 10.000:101:0.400"
-  grid_specs_clue="lambert:262.5:38.5 239.891:1620:3000.0 20.971:1120:3000.0"
-  grid_specs_hrrr="lambert:-97.5:38.5 -122.719528:1799:3000.0 21.138123:1059:3000.0"
-  grid_specs_hrrre="lambert:-97.5:38.5 -122.719528:1800:3000.0 21.138123:1060:3000.0"
-  grid_specs_rrfsak="lambert:-161.5:63.0 172.102615:1379:3000.0 45.84576:1003:3000.0"
-
-  for grid in ${ADDNL_OUTPUT_GRIDS[@]}
-  do
-    for leveltype in dawp rd3d sfc spc
-    do
-      
-      eval grid_specs=\$grid_specs_${grid}
-      subdir=${postprd_dir}/${grid}_grid
-      mkdir -p ${subdir}/${fhr}
-      bg_remap=${subdir}/${NET}.t${cyc}z.bg${leveltype}f${fhr}.${tmmark}.grib2
-
-      # Interpolate fields to new grid
-      eval infile=\$bg${leveltype}
-      if [ ${NET} = "RRFS_NA_13km" ]; then
-         wgrib2 ${infile} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid \
-           -new_grid_vectors "UGRD:VGRD:USTM:VSTM:VUCSH:VVCSH" \
-           -new_grid_interpolation bilinear \
-           -if ":(WEASD|APCP|NCPCP|ACPCP|SNOD):" -new_grid_interpolation budget -fi \
-           -if ":(NCONCD|NCCICE|SPNCR|CLWMR|CICE|RWMR|SNMR|GRLE|PMTF|PMTC|REFC|CSNOW|CICEP|CFRZR|CRAIN|LAND|ICEC|TMP:surface|VEG|CCOND|SFEXC|MSLMA|PRES:tropopause|LAI|HPBL|HGT:planetary boundary layer):" -new_grid_interpolation neighbor -fi \
-           -new_grid ${grid_specs} ${subdir}/${fhr}/tmp_${grid}.grib2 &
-      else
-         wgrib2 ${infile} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid \
-           -new_grid_vectors "UGRD:VGRD:USTM:VSTM:VUCSH:VVCSH" \
-           -new_grid_interpolation neighbor \
-           -new_grid ${grid_specs} ${subdir}/${fhr}/tmp_${grid}.grib2 &
-      fi
-      wait 
-
-      # Merge vector field records
-      wgrib2 ${subdir}/${fhr}/tmp_${grid}.grib2 -new_grid_vectors "UGRD:VGRD:USTM:VSTM:VUCSH:VVCSH" -submsg_uv ${bg_remap} &
-      wait 
-
-      # Remove temporary files
-      rm -f ${subdir}/${fhr}/tmp_${grid}.grib2
-
-      # Save to com directory 
-      mkdir -p ${comout}/${grid}_grid
-      cp_vrfy ${bg_remap} ${comout}/${grid}_grid/${NET}.t${cyc}z.bg${leveltype}f${fhr}.${tmmark}.grib2
-
-      # Link output for transfer from Jet to web
-      ln_vrfy -fs --relative ${comout}/${grid}_grid/${NET}.t${cyc}z.bg${leveltype}f${fhr}.${tmmark}.grib2 ${comout}/${grid}_grid/BG${leveltype^^}_${basetime}${post_fhr}00
-    done
-  done
-fi
-
-rm_vrfy -rf ${fhr_dir}
 #
 #-----------------------------------------------------------------------
 #
