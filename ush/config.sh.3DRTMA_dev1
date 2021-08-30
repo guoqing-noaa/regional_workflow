@@ -240,6 +240,7 @@ NCORES_PER_NODE=40 #kjet
 FG_ROOTDIR="/lfs4/BMC/nrtrr/NCO_dirs/nwges/para/RRFS_dev1" #only needed by RTMA
 DT_ATMOS=1
 MAXTRIES_RUN_FCST="3"
+PYTHON_GRAPHICS_YML_FN="rtma.yml"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
 CUSTOM_POST_CONFIG_FP="/lfs4/BMC/nrtrr/RTMA/RTMA-dev1-ufs-rtma-app/regional_workflow/ush/templates/postxconfig-NT-3drtma.txt"

@@ -1230,6 +1230,10 @@ VERBOSE="TRUE"
 #  but we needs to explicitly specify where to find FG for RTMA.
 #  So this parameter only matters for RTMA
 #
+# PYTHON_GRAPHICS_YML_FN
+#  The name of the yml file under ${PYTHON_GRAPHICS_DIR}/image_lists
+#  to be used by current application
+#
 #-----------------------------------------------------------------------
 #
 RUN_TASK_MAKE_GRID="TRUE"
@@ -1244,6 +1248,7 @@ SFC_CLIMO_DIR="/path/to/pregenerated/surface/climo/files"
 NCORES_PER_NODE=24 #Jet default value
 IS_RTMA="FALSE"
 FG_ROOTDIR=""
+PYTHON_GRAPHICS_YML_FN="rrfs_subset.yml"
 #
 #-----------------------------------------------------------------------
 #
