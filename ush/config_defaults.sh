@@ -106,6 +106,18 @@ RUN_ENVIR="nco"
 # If this is not set or set to an empty string, it will be (re)set to a 
 # machine-dependent value.
 #
+# PARTITION_WGRIB2:
+# If using the slurm job scheduler (i.e. if SCHED is set to "slurm"), 
+# the partition to which the task that remaps output grids is submitted.  If 
+# this is not set or set to an empty string, it will be (re)set to a 
+# machine-dependent value.  This is not used if SCHED is not set to 
+# "slurm".
+#
+# QUEUE_WGRIB2:
+# The queue or QOS to which the task that remaps output grids is submitted.  
+# If this is not set or set to an empty string, it will be (re)set to a 
+# machine-dependent value.
+#
 # mach_doc_end
 #
 #-----------------------------------------------------------------------
@@ -125,6 +137,8 @@ PARTITION_GRAPHICS=""
 QUEUE_GRAPHICS=""
 PARTITION_ANALYSIS=""
 QUEUE_ANALYSIS=""
+PARTITION_WGRIB2=""
+QUEUE_WGRIB2=""
 #
 #-----------------------------------------------------------------------
 #
@@ -254,6 +268,10 @@ EXPT_SUBDIR=""
 #    LIGHTNING_ROOT: location of lightning observations
 #    ENKF_FCSTL: location of global ensemble forecast
 #    FFG_DIR: location of flash flood guidance for QPF comparison
+
+# Setup default locations for global SST and update time:
+#   SST_ROOT: locations of global SST
+#   SST_update_hour: cycle time for updating SST 
 #-----------------------------------------------------------------------
 #
 COMINgfs="/base/path/of/directory/containing/gfs/input/files"
@@ -277,6 +295,8 @@ OBSPATH_NSSLMOSIAC="/public/data/radar/mrms"
 LIGHTNING_ROOT="/public/data/lightning"
 ENKF_FCST="/lfs4/BMC/public/data/grids/enkf/atm"
 FFG_DIR="/public/data/grids/ncep/ffg/grib2"
+SST_ROOT="/lfs4/BMC/public/data/grids/ncep/sst/0p083deg/grib2"
+SST_update_hour=99
 
 #
 #-----------------------------------------------------------------------
@@ -567,7 +587,10 @@ l_PBL_pseudo_SurfobsQ=.false.
 i_use_2mQ4B=0
 i_use_2mT4B=0
 #-----------------------------------------------------------------------
+# HYBENSMEM_NMIN:
+#    Minimum number of ensemble members required a hybrid GSI analysis 
 #
+HYBENSMEM_NMIN=80
 ANAVINFO_FN="anavinfo.fv3lam_hrrr"
 CONVINFO_FN="convinfo.rrfs"
 BERROR_FN="rap_berror_stats_global_RAP_tune" #under $FIX_GSI
