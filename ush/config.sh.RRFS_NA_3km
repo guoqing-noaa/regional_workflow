@@ -20,8 +20,6 @@ FIXLAM_NCO_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 FIXgsm=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_am.20210128
 GWD_HRRRsuite_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 
-FIX_GSI=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_gsi
-FIX_CRTM=/home/rtrr/FIX_EXEC_MODULE/crtm/CRTM_v2.3.0
 
 if [[ $MACHINE == "hera" ]] ; then
   ACCOUNT="wrfruc"
@@ -33,8 +31,6 @@ if [[ $MACHINE == "hera" ]] ; then
   FIXgsm=/scratch1/BMC/zrtrr/RRFS/fix/fix_am.20210128
   GWD_HRRRsuite_BASEDIR=/scratch1/BMC/zrtrr/RRFS/fix/fix_lam.20210128
 
-  FIX_GSI=/scratch1/BMC/zrtrr/RRFS/fix/fix_gsi
-  FIX_CRTM=/scratch1/BMC/zrtrr/RRFS/fix/CRTM_v2.3.0
   AIRCRAFT_REJECT=${FIX_GSI}
   SFCOBS_USELIST=${FIX_GSI}
 
@@ -145,8 +141,10 @@ TAG="RRFS_dev1_NA_3km"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
 # Below:  use EMC_post control file from 13-km NA configuration (provisional only)
-CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_upp/postxconfig-NT-fv3lam_rrfs.txt"
-CUSTOM_POST_PARAMS_FP="/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_upp/params_grib2_tbl_new"
+mydir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+mywflowdir="$(dirname "$mydir")"
+CUSTOM_POST_CONFIG_FP="${mywflowdir}/fix/upp/postxconfig-NT-fv3lam_rrfs.txt"
+CUSTOM_POST_PARAMS_FP="${mywflowdir}/fix/upp/params_grib2_tbl_new"
 ARCHIVEDIR="/5year/BMC/wrfruc/rrfs_na_3km_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
 NCL_HOME="/home/rtrr/RRFS/graphics"
