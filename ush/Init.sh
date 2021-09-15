@@ -1,7 +1,8 @@
 #!/bin/sh
 #
-basedir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-utildir="$basedir"/ush/bash_utils
+ushdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+basedir="$(dirname "$ushdir")"
+utildir="$ushdir"/bash_utils
 
 # set the pre-commit hook
 echo -e "#!/bin/sh" > $basedir/.git/hooks/pre-commit
