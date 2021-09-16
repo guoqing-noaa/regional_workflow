@@ -10,9 +10,8 @@ if [[ -n $RESERVATION ]] ; then
   SERVICE_ACCOUNT=nrtrr
   PARTITION_DEFAULT=kjet
   PARTITION_FCST=kjet
+  PARTITION_GRAPHICS=kjet,xjet,tjet,ujet,vjet
   PARTITION_ANALYSIS=kjet
-else
-  PARTITION_DEFAULT=kjet
 fi
 
 FIXLAM_NCO_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
