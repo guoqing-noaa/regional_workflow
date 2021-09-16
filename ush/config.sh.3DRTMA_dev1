@@ -10,16 +10,15 @@ if [[ -n $RESERVATION ]] ; then
   SERVICE_ACCOUNT=nrtrr
   PARTITION_DEFAULT=kjet
   PARTITION_FCST=kjet
-  PARTITION_GRAPHICS=kjet,xjet,tjet,ujet,vjet
   PARTITION_ANALYSIS=kjet
+else
+  PARTITION_DEFAULT=kjet
 fi
 
 FIXLAM_NCO_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 FIXgsm=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_am.20210128
 GWD_HRRRsuite_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 
-FIX_GSI=/mnt/lfs4/BMC/nrtrr/RTMA/fix/fix_gsi
-FIX_CRTM=/home/rtrr/FIX_EXEC_MODULE/crtm/CRTM_v2.3.0
 OBSPATH_NSSLMOSIAC=/public/data/radar/nssl/mrms/conus
 FFG_DIR=/public/data/grids/ncep/ffg/grib2
 RADARREFL_TIMELEVEL=(0)
@@ -35,8 +34,6 @@ if [[ $MACHINE == "hera" ]] ; then
   FIXgsm=/scratch1/BMC/zrtrr/RRFS/fix/fix_am.20210128
   GWD_HRRRsuite_BASEDIR=/scratch1/BMC/zrtrr/RRFS/fix/fix_lam.20210128
 
-  FIX_GSI=/scratch1/BMC/zrtrr/RTMA/fix/fix_gsi
-  FIX_CRTM=/scratch1/BMC/zrtrr/RRFS/fix/CRTM_v2.3.0
   AIRCRAFT_REJECT=${FIX_GSI}
   SFCOBS_USELIST=${FIX_GSI}
 
@@ -60,8 +57,6 @@ if [[ $MACHINE == "orion" ]] ; then
   FIXgsm=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_am.20210128
   GWD_HRRRsuite_BASEDIR=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_lam.20210128
 
-  FIX_GSI=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_gsi
-  FIX_CRTM=/work/noaa/wrfruc/mhu/rrfs/data/fix/CRTM_v2.3.0
   AIRCRAFT_REJECT=${FIX_GSI}
   SFCOBS_USELIST=${FIX_GSI}
 fi
@@ -79,10 +74,11 @@ TILE_LABELS="CONUS REGIONS"
 TILE_SETS="full NE,NC,NW,SE,SC,SW"
 
 DO_DACYCLE="TRUE"
+#DO_SURFACE_CYCLE="FALSE"
 #DO_SPINUP="FALSE"
 #DO_RETRO="TRUE"
 #LBCS_ICS_ONLY="TRUE"
-DO_NONVAR_CLDANAL="TRUE"
+#DO_NONVAR_CLDANAL="TRUE"
 #DO_REFL2TTEN="FALSE"
 #
 #-------------------------------------------------------------------------------------
@@ -90,7 +86,7 @@ DO_NONVAR_CLDANAL="TRUE"
 # if we need to tune one GSI namelist parameter, we can elevate it to a shell variable
 # and assign value in config.sh and give it a default value in config_default.sh
 # In realtime testing, don't need to regenerate the whole workflow, you can tweak 
-# $EXPTDIR/var_defns.sh and $USH/template/gsiparm.anl.sh to make sure the change is
+# $EXPTDIR/var_defns.sh and $FIX_GSI/gsiparm.anl.sh to make sure the change is
 # expected and then put it back into config.sh and config_default.sh
 #       (need to follow FORTRAN namelist convetion)
 #-------------------------------------------------------------------------------------
@@ -123,7 +119,7 @@ BERROR_FN="berror.rtma"      #under $FIX_GSI
 #the following four are under $USHDIR/templates
 ANAVINFO_FN="anavinfo.fv3lam_hrrr"
 CONVINFO_FN="convinfo.rtma"
-OBERROR_FN="errtable.rtma"
+OBERROR_FN="3drtma_errtable_heightDependent_20200514"
 HYBENSINFO_FN="hybens_info.rtma"
 AIRCRAFT_REJECT="/home/amb-verif/acars_RR/amdar_reject_lists"
 SFCOBS_USELIST="/lfs4/BMC/amb-verif/rap_ops_mesonet_uselists"
@@ -209,6 +205,7 @@ DA_CYCLE_INTERV="1" #need to be 1 to have hourly DA
 RESTART_INTERVAL="1"
 
 NCORES_RUN_ANAL=240
+WTIME_RUN_ANAL="01:00:00"
 HYBENSMEM_NMIN=66
 HALO_BLEND=10
 #LAYOUT_X="17"
@@ -244,8 +241,10 @@ MAXTRIES_RUN_FCST="3"
 PYTHON_GRAPHICS_YML_FN="rtma.yml"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
-CUSTOM_POST_CONFIG_FP="/lfs4/BMC/nrtrr/RTMA/RTMA-dev1-ufs-rtma-app/regional_workflow/ush/templates/postxconfig-NT-3drtma.txt"
-CUSTOM_POST_PARAMS_FP="/lfs4/BMC/nrtrr/RTMA/RTMA-dev1-ufs-rtma-app/regional_workflow/ush/templates/params_grib2_tbl_new_rtma"
+mydir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+mywflowdir="$(dirname "$mydir")"
+CUSTOM_POST_CONFIG_FP="${mywflowdir}/fix/upp/postxconfig-NT-fv3lam_rrfs.txt"
+CUSTOM_POST_PARAMS_FP="${mywflowdir}/fix/upp/params_grib2_tbl_new"
 POST_FULL_MODEL_NAME="FV3RRTMA"
 ARCHIVEDIR="/5year/BMC/wrfruc/rtma_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
@@ -279,6 +278,13 @@ if [[ $DO_RETRO == "TRUE" ]] ; then
     CLEAN_OLDRUN_HRS="7777"
     CLEAN_OLDFCST_HRS="7777"
   fi
+else
+  CLEAN_OLDPROD_HRS="72"
+  CLEAN_OLDLOG_HRS="72"
+  CLEAN_OLDRUN_HRS="12"
+  CLEAN_OLDFCST_HRS="12"
+  CLEAN_OLDSTMPPOST_HRS="24"
+  CLEAN_NWGES_HRS="72"
 fi
 
 #

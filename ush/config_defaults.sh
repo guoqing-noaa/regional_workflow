@@ -561,7 +561,7 @@ ARCHIVE_CYCLEDEF="00 01 01 01 2100 *"
 # if we need to tune one GSI namelist parameter, we can elevate it to a shell variable
 # and assign value in config.sh and give it a default value in config_default.sh
 # In realtime testing, don't need to regenerate the whole workflow, you can tweak 
-# $EXPTDIR/var_defns.sh and $USH/template/gsiparm.anl.sh to make sure the change is
+# $EXPTDIR/var_defns.sh and $FIX_GSI/gsiparm.anl.sh to make sure the change is
 # expected and then put it back into config.sh and config_default.sh
 #       (need to follow FORTRAN namelist convetion)
 #-------------------------------------------------------------------------------------

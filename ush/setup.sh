@@ -735,8 +735,8 @@ case $MACHINE in
     TOPO_DIR=${TOPO_DIR:-"/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/fix_orog"}
     SFC_CLIMO_INPUT_DIR=${SFC_CLIMO_INPUT_DIR:-"/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/fix_sfc_climo"}
     FIXLAM_NCO_BASEDIR=${FIXLAM_NCO_BASEDIR:-"/needs/to/be/specified"}
-    FIX_GSI=${FIX_GSI:-"/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_gsi"}
-    FIX_CRTM=${FIX_CRTM:-"/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_crtm"}
+    FIX_GSI=${FIX_GSI:-"${HOMErrfs}/fix/gsi"}
+    FIX_CRTM=${FIX_CRTM:-"${HOMErrfs}/crtm/CRTM_v2.3.0"}
     ;;
 
   "ODIN")
