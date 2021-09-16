@@ -596,8 +596,8 @@ CONVINFO_FN="convinfo.rrfs"
 BERROR_FN="rap_berror_stats_global_RAP_tune" #under $FIX_GSI
 OBERROR_FN="errtable.rrfs"
 HYBENSINFO_FN="hybens_info.rrfs"
-AIRCRAFT_REJECT="/home/amb-verif/acars_RR/amdar_reject_lists"
-SFCOBS_USELIST="/lfs4/BMC/amb-verif/rap_ops_mesonet_uselists"
+AIRCRAFT_REJECT=""
+SFCOBS_USELIST=""
 #
 #-----------------------------------------------------------------------
 #
@@ -1311,6 +1311,10 @@ SFC_CLIMO_FIELDS=( \
 # System directory in which the fixed 
 # files that are needed to run the GSI are located
 #
+# FIX_UPP:
+# System directory in which the fixed 
+# files that are needed to run the UPP are located
+#
 # FIX_CRTM:
 # System directory in which the CRTM coefficient files are located 
 #
@@ -1369,6 +1373,7 @@ FIXgsm=""
 TOPO_DIR=""
 SFC_CLIMO_INPUT_DIR=""
 FIX_GSI=""
+FIX_UPP=""
 FIX_CRTM=""
 
 FNGLAC="global_glacier.2x2.grb"

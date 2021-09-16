@@ -33,8 +33,6 @@ if [[ $MACHINE == "hera" ]] ; then
   FIXgsm=/scratch1/BMC/zrtrr/RRFS/fix/fix_am.20210128
   GWD_HRRRsuite_BASEDIR=/scratch1/BMC/zrtrr/RRFS/fix/fix_lam.20210128
 
-  AIRCRAFT_REJECT=${FIX_GSI}
-  SFCOBS_USELIST=${FIX_GSI}
 
 # for using RAP as boundary and initial
 #  EXTRN_MDL_SOURCE_BASEDIR_ICS=/scratch2/BMC/public/data/grids/rap/full/wrfnat/grib2
@@ -56,8 +54,6 @@ if [[ $MACHINE == "orion" ]] ; then
   FIXgsm=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_am.20210128
   GWD_HRRRsuite_BASEDIR=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_lam.20210128
 
-  AIRCRAFT_REJECT=${FIX_GSI}
-  SFCOBS_USELIST=${FIX_GSI}
 fi
 
 
