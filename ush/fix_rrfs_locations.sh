@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Record rrfs_fix locaitons at different HPC platforms
+# FIX_RRFS locaitons at different HPC platforms
 #
 if [[ -d /dcom && -d /hwrf ]] ; then
     PLATFORM=wcoss

@@ -3,7 +3,7 @@ mydir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 ushdir="$(dirname "$mydir")"
 basedir="$(dirname "$ushdir")"
 agentdir="$basedir/fix/.agent"
-source $ushdir/rrfs_fix_locations.sh
+source $ushdir/fix_rrfs_locations.sh
 mkdir -p $basedir/fix
 
 filetype=$(file $agentdir)
