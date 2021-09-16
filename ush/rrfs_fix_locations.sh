@@ -13,7 +13,7 @@ elif [[ -d /ioddev_dell ]]; then
     RRFS_FIX_LOCATION="/to/do"
 elif [[ -d /scratch1 ]] ; then
     PLATFORM=hera
-    RRFS_FIX_LOCATION="/to/do"
+    RRFS_FIX_LOCATION="/scratch2/BMC/rtrr/FIX_RRFS"
 elif [[ -d /carddata ]] ; then
     PLATFORM=s4
     RRFS_FIX_LOCATION="/to/do"
@@ -28,7 +28,7 @@ elif [[ -d /sw/gaea ]] ; then
     RRFS_FIX_LOCATION="/to/do"
 elif [[ -d /work ]]; then
     PLATFORM=orion
-    RRFS_FIX_LOCATION="/to/do"
+    RRFS_FIX_LOCATION="/work/noaa/rtrr/FIX_RRFS"
 else
     PLATFORM=unknow
     RRFS_FIX_LOCATION="/this/is/an/unknow/platform"

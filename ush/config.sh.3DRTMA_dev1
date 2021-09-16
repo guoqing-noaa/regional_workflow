@@ -118,7 +118,7 @@ BERROR_FN="berror.rtma"      #under $FIX_GSI
 #the following four are under $USHDIR/templates
 ANAVINFO_FN="anavinfo.fv3lam_hrrr"
 CONVINFO_FN="convinfo.rtma"
-OBERROR_FN="3drtma_errtable_heightDependent_20200514"
+OBERROR_FN="errtable.rtma"
 HYBENSINFO_FN="hybens_info.rtma"
 AIRCRAFT_REJECT="/home/amb-verif/acars_RR/amdar_reject_lists"
 SFCOBS_USELIST="/lfs4/BMC/amb-verif/rap_ops_mesonet_uselists"
