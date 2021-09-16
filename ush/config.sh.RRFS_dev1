@@ -17,8 +17,6 @@ FIXLAM_NCO_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 FIXgsm=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_am.20210128
 GWD_HRRRsuite_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
 
-FIX_GSI=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_gsi
-FIX_CRTM=/home/rtrr/FIX_EXEC_MODULE/crtm/CRTM_v2.3.0
 OBSPATH_NSSLMOSIAC=/public/data/radar/nssl/mrms/conus
 FFG_DIR=/public/data/grids/ncep/ffg/grib2
 RADARREFL_TIMELEVEL=(0 15 30 45)
@@ -34,8 +32,6 @@ if [[ $MACHINE == "hera" ]] ; then
   FIXgsm=/scratch1/BMC/zrtrr/RRFS/fix/fix_am.20210128
   GWD_HRRRsuite_BASEDIR=/scratch1/BMC/zrtrr/RRFS/fix/fix_lam.20210128
 
-  FIX_GSI=/scratch1/BMC/zrtrr/RRFS/fix/fix_gsi
-  FIX_CRTM=/scratch1/BMC/zrtrr/RRFS/fix/CRTM_v2.3.0
   AIRCRAFT_REJECT=${FIX_GSI}
   SFCOBS_USELIST=${FIX_GSI}
 
@@ -59,8 +55,6 @@ if [[ $MACHINE == "orion" ]] ; then
   FIXgsm=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_am.20210128
   GWD_HRRRsuite_BASEDIR=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_lam.20210128
 
-  FIX_GSI=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_gsi
-  FIX_CRTM=/work/noaa/wrfruc/mhu/rrfs/data/fix/CRTM_v2.3.0
   AIRCRAFT_REJECT=${FIX_GSI}
   SFCOBS_USELIST=${FIX_GSI}
 fi
@@ -191,8 +185,8 @@ NET="RRFS_CONUS"
 TAG="RRFS_dev1_CONUS"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
-CUSTOM_POST_CONFIG_FP="/mnt/lfs4/BMC/nrtrr/RRFS/dev1-ufs-srweather-app/src/EMC_post/parm/postxconfig-NT-fv3lam_rrfs.txt"
-CUSTOM_POST_PARAMS_FP="/mnt/lfs4/BMC/nrtrr/RRFS/dev1-ufs-srweather-app/src/EMC_post/parm/params_grib2_tbl_new"
+CUSTOM_POST_CONFIG_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/postxconfig-NT-fv3lam_rrfs.txt"
+CUSTOM_POST_PARAMS_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/params_grib2_tbl_new"
 ARCHIVEDIR="/5year/BMC/wrfruc/rrfs_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
 NCL_HOME="/home/rtrr/RRFS/graphics"

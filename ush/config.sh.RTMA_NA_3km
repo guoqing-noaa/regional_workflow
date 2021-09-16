@@ -103,7 +103,6 @@ i_use_2mT4B=0
 #-------------------------------------------------------------------------------------
 #
 BERROR_FN="berror.rtma"      #under $FIX_GSI
-#the following four are under $USHDIR/templates
 ANAVINFO_FN="anavinfo.fv3lam_hrrr"
 CONVINFO_FN="convinfo.rtma"
 OBERROR_FN="errtable.rtma"

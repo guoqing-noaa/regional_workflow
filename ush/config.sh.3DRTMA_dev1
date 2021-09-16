@@ -115,7 +115,6 @@ i_use_2mT4B=0
 #-------------------------------------------------------------------------------------
 #
 BERROR_FN="berror.rtma"      #under $FIX_GSI
-#the following four are under $USHDIR/templates
 ANAVINFO_FN="anavinfo.fv3lam_hrrr"
 CONVINFO_FN="convinfo.rtma"
 OBERROR_FN="errtable.rtma"
@@ -240,10 +239,8 @@ MAXTRIES_RUN_FCST="3"
 PYTHON_GRAPHICS_YML_FN="rtma.yml"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
-mydir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-mywflowdir="$(dirname "$mydir")"
-CUSTOM_POST_CONFIG_FP="${mywflowdir}/fix/upp/postxconfig-NT-fv3lam_rrfs.txt"
-CUSTOM_POST_PARAMS_FP="${mywflowdir}/fix/upp/params_grib2_tbl_new"
+CUSTOM_POST_CONFIG_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/postxconfig-NT-fv3lam_rrfs.txt"
+CUSTOM_POST_PARAMS_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/params_grib2_tbl_new"
 POST_FULL_MODEL_NAME="FV3RRTMA"
 ARCHIVEDIR="/5year/BMC/wrfruc/rtma_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
