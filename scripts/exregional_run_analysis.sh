@@ -520,7 +520,6 @@ done
 #
 #-----------------------------------------------------------------------
 # 
-==
 . ${FIX_GSI}/gsiparm.anl.sh
 cat << EOF > gsiparm.anl
 $gsi_namelist

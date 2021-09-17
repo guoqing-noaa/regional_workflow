@@ -227,7 +227,7 @@ if [ ${#ADDNL_OUTPUT_GRIDS[@]} -gt 0 ]; then
 
   for grid in ${ADDNL_OUTPUT_GRIDS[@]}
   do
-    for leveltype in dawp rd3d sfc 
+    for leveltype in dawp rd3d sfc
     do
       
       eval grid_specs=\$grid_specs_${grid}
