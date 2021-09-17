@@ -10,7 +10,7 @@ elif [[ -d /cm ]] ; then
     FIX_RRFS_LOCATION="/to/do"
 elif [[ -d /ioddev_dell ]]; then
     PLATFORM=wcoss_d
-    FIX_RRFS_LOCATION="/to/do"
+    FIX_RRFS_LOCATION="/gpfs/hps3/emc/meso/save/Ming.Hu/FIX_RRFS"
 elif [[ -d /scratch1 ]] ; then
     PLATFORM=hera
     FIX_RRFS_LOCATION="/scratch2/BMC/rtrr/FIX_RRFS"
