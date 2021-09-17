@@ -1638,12 +1638,17 @@ ADDNL_OUTPUT_GRIDS=( )
 # POST_FULL_MODEL_NAME
 # The full module name required by UPP and set in the itag file
 #
+# TESTBED_FIELDS_FN
+# The file which lists grib2 fields to be extracted to bgsfc for testbed
+# Empty string means no need to generate bgsfc for testbed
+#
 #-----------------------------------------------------------------------
 #
 USE_CUSTOM_POST_CONFIG_FILE="FALSE"
 CUSTOM_POST_CONFIG_FP=""
 CUSTOM_POST_PARAMS_FP=""
 POST_FULL_MODEL_NAME="FV3R"
+TESTBED_FIELDS_FN=""
 #
 #-----------------------------------------------------------------------
 #

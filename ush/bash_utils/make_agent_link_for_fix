@@ -10,4 +10,4 @@ filetype=$(file $agentdir)
 if [[ ! "$filetype" == *"symbolic link"* ]]; then
   rm -rf $agentdir
 fi
-ln -snf $RRFS_FIX_LOCATION $agentdir
+ln -snf $FIX_RRFS_LOCATION $agentdir

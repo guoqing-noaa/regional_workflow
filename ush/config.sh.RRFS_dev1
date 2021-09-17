@@ -182,6 +182,7 @@ NET="RRFS_CONUS"
 TAG="RRFS_dev1_CONUS"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
+TESTBED_FIELDS_FN="testbed_fields_bgdawp.txt"
 CUSTOM_POST_CONFIG_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/postxconfig-NT-fv3lam_rrfs.txt"
 CUSTOM_POST_PARAMS_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/params_grib2_tbl_new"
 ARCHIVEDIR="/5year/BMC/wrfruc/rrfs_dev1"
