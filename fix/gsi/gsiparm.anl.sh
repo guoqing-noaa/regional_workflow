@@ -47,7 +47,7 @@ OBS_INPUT::
    prepbufr       uv          null      uv                   1.0     0     0
    prepbufr       spd         null      spd                  1.0     0     0
    prepbufr       dw          null      dw                   1.0     0     0
-   l2rwbufr       rw          null      l2rw                 1.0     0     0
+!  l2rwbufr       rw          null      l2rw                 1.0     0     0
    prepbufr       sst         null      sst                  1.0     0     0
    gpsrobufr      gps_ref     null      gps                  1.0     0     0
    ssmirrbufr     pcp_ssmi    dmsp      pcp_ssmi             1.0    -1     0
@@ -176,7 +176,7 @@ OBS_INPUT::
    iclean_hydro_withRef_allcol=1,
    i_use_2mQ4B=0,
    i_use_2mT4B=0,
-   i_gsdcldanal_type=${cloudanalysistype},
+   i_gsdcldanal_type=0,
    i_gsdsfc_uselist=1,
    i_lightpcp=1,
    i_sfct_gross=1,

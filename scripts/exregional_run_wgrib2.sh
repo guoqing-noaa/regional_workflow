@@ -184,16 +184,16 @@ fi
 bgdawp=${postprd_dir}/${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
 bgrd3d=${postprd_dir}/${NET}.t${cyc}z.bgrd3df${fhr}.${tmmark}.grib2
 bgsfc=${postprd_dir}/${NET}.t${cyc}z.bgsfcf${fhr}.${tmmark}.grib2
-bgspc=${postprd_dir}/${NET}.t${cyc}z.bgspcf${fhr}.${tmmark}.grib2
+
 # extract the output fields for the testbed
-wgrib2 ${bgdawp} | grep -F -f ${FIXam}/testbed_fields_bgdawp.txt | wgrib2 -i -grib ${bgsfc} ${bgdawp}
-matchstr="parmcat=16 parm=196|(TMP|DPT):2 m above ground\
-|CAPE:(90|255)-0 mb above ground|CAPE:surface\
-|CIN:(90|255)-0 mb above ground|CIN:surface\
-|parmcat=7 parm=207|parmcat=7 parm=208\
-|parmcat=2 parm=234|parmcat=2 parm=235\
-"
-wgrib2 -match "${matchstr}" ${bgsfc} -grib "${bgspc}"
+touch ${bgsfc}
+if [[ ! -z ${TESTBED_FIELDS_FN} ]]; then
+  if [[ -f ${FIX_UPP}/${TESTBED_FIELDS_FN} ]]; then
+    wgrib2 ${bgdawp} | grep -F -f ${FIX_UPP}/${TESTBED_FIELDS_FN} | wgrib2 -i -grib ${bgsfc} ${bgdawp}
+  else
+    echo "${FIX_UPP}/${TESTBED_FIELDS_FN} not found"
+  fi
+fi
 
 #Link output for transfer to Jet
 # Should the following be done only if on jet??
@@ -227,7 +227,7 @@ if [ ${#ADDNL_OUTPUT_GRIDS[@]} -gt 0 ]; then
 
   for grid in ${ADDNL_OUTPUT_GRIDS[@]}
   do
-    for leveltype in dawp rd3d sfc spc
+    for leveltype in dawp rd3d sfc
     do
       
       eval grid_specs=\$grid_specs_${grid}

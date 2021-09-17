@@ -106,6 +106,18 @@ RUN_ENVIR="nco"
 # If this is not set or set to an empty string, it will be (re)set to a 
 # machine-dependent value.
 #
+# PARTITION_WGRIB2:
+# If using the slurm job scheduler (i.e. if SCHED is set to "slurm"), 
+# the partition to which the task that remaps output grids is submitted.  If 
+# this is not set or set to an empty string, it will be (re)set to a 
+# machine-dependent value.  This is not used if SCHED is not set to 
+# "slurm".
+#
+# QUEUE_WGRIB2:
+# The queue or QOS to which the task that remaps output grids is submitted.  
+# If this is not set or set to an empty string, it will be (re)set to a 
+# machine-dependent value.
+#
 # mach_doc_end
 #
 #-----------------------------------------------------------------------
@@ -125,6 +137,8 @@ PARTITION_GRAPHICS=""
 QUEUE_GRAPHICS=""
 PARTITION_ANALYSIS=""
 QUEUE_ANALYSIS=""
+PARTITION_WGRIB2=""
+QUEUE_WGRIB2=""
 #
 #-----------------------------------------------------------------------
 #
@@ -254,6 +268,10 @@ EXPT_SUBDIR=""
 #    LIGHTNING_ROOT: location of lightning observations
 #    ENKF_FCSTL: location of global ensemble forecast
 #    FFG_DIR: location of flash flood guidance for QPF comparison
+
+# Setup default locations for global SST and update time:
+#   SST_ROOT: locations of global SST
+#   SST_update_hour: cycle time for updating SST 
 #-----------------------------------------------------------------------
 #
 COMINgfs="/base/path/of/directory/containing/gfs/input/files"
@@ -277,6 +295,8 @@ OBSPATH_NSSLMOSIAC="/public/data/radar/mrms"
 LIGHTNING_ROOT="/public/data/lightning"
 ENKF_FCST="/lfs4/BMC/public/data/grids/enkf/atm"
 FFG_DIR="/public/data/grids/ncep/ffg/grib2"
+SST_ROOT="/lfs4/BMC/public/data/grids/ncep/sst/0p083deg/grib2"
+SST_update_hour=99
 
 #
 #-----------------------------------------------------------------------
@@ -541,7 +561,7 @@ ARCHIVE_CYCLEDEF="00 01 01 01 2100 *"
 # if we need to tune one GSI namelist parameter, we can elevate it to a shell variable
 # and assign value in config.sh and give it a default value in config_default.sh
 # In realtime testing, don't need to regenerate the whole workflow, you can tweak 
-# $EXPTDIR/var_defns.sh and $USH/template/gsiparm.anl.sh to make sure the change is
+# $EXPTDIR/var_defns.sh and $FIX_GSI/gsiparm.anl.sh to make sure the change is
 # expected and then put it back into config.sh and config_default.sh
 #       (need to follow FORTRAN namelist convetion)
 #-------------------------------------------------------------------------------------
@@ -567,14 +587,17 @@ l_PBL_pseudo_SurfobsQ=.false.
 i_use_2mQ4B=0
 i_use_2mT4B=0
 #-----------------------------------------------------------------------
+# HYBENSMEM_NMIN:
+#    Minimum number of ensemble members required a hybrid GSI analysis 
 #
+HYBENSMEM_NMIN=80
 ANAVINFO_FN="anavinfo.fv3lam_hrrr"
 CONVINFO_FN="convinfo.rrfs"
 BERROR_FN="rap_berror_stats_global_RAP_tune" #under $FIX_GSI
 OBERROR_FN="errtable.rrfs"
 HYBENSINFO_FN="hybens_info.rrfs"
-AIRCRAFT_REJECT="/home/amb-verif/acars_RR/amdar_reject_lists"
-SFCOBS_USELIST="/lfs4/BMC/amb-verif/rap_ops_mesonet_uselists"
+AIRCRAFT_REJECT=""
+SFCOBS_USELIST=""
 #
 #-----------------------------------------------------------------------
 #
@@ -1288,6 +1311,10 @@ SFC_CLIMO_FIELDS=( \
 # System directory in which the fixed 
 # files that are needed to run the GSI are located
 #
+# FIX_UPP:
+# System directory in which the fixed 
+# files that are needed to run the UPP are located
+#
 # FIX_CRTM:
 # System directory in which the CRTM coefficient files are located 
 #
@@ -1346,6 +1373,7 @@ FIXgsm=""
 TOPO_DIR=""
 SFC_CLIMO_INPUT_DIR=""
 FIX_GSI=""
+FIX_UPP=""
 FIX_CRTM=""
 
 FNGLAC="global_glacier.2x2.grb"
@@ -1610,12 +1638,17 @@ ADDNL_OUTPUT_GRIDS=( )
 # POST_FULL_MODEL_NAME
 # The full module name required by UPP and set in the itag file
 #
+# TESTBED_FIELDS_FN
+# The file which lists grib2 fields to be extracted to bgsfc for testbed
+# Empty string means no need to generate bgsfc for testbed
+#
 #-----------------------------------------------------------------------
 #
 USE_CUSTOM_POST_CONFIG_FILE="FALSE"
 CUSTOM_POST_CONFIG_FP=""
 CUSTOM_POST_PARAMS_FP=""
 POST_FULL_MODEL_NAME="FV3R"
+TESTBED_FIELDS_FN=""
 #
 #-----------------------------------------------------------------------
 #
