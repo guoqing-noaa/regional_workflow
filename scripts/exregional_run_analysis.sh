@@ -368,8 +368,8 @@ obs_files_target[0]=prepbufr
 obs_files_source[1]=${obspath_tmp}/${obsfileprefix}.t${HH}z.satwnd.tm00.bufr_d
 obs_files_target[1]=satwndbufr
 
-#obs_files_source[2]=${obspath_tmp}/${obsfileprefix}.t${HH}z.nexrad.tm00.bufr_d
-#obs_files_target[2]=l2rwbufr #comment out rw for now -Aug.29,2021
+obs_files_source[2]=${obspath_tmp}/${obsfileprefix}.t${HH}z.nexrad.tm00.bufr_d
+obs_files_target[2]=l2rwbufr
 
 obs_number=${#obs_files_source[@]}
 for (( i=0; i<${obs_number}; i++ ));
