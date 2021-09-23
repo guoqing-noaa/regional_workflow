@@ -1,7 +1,7 @@
 MACHINE="jet"
 ACCOUNT="nrtrr"
-RESERVATION="rrfsdet"
-EXPT_BASEDIR="/home/rtrr/RRFS"
+#RESERVATION="rrfsdet"
+EXPT_BASEDIR="YourOwnSpace"
 EXPT_SUBDIR="RRFS_NA_13km_dev1"
 
 if [[ -n $RESERVATION ]] ; then
@@ -13,60 +13,25 @@ if [[ -n $RESERVATION ]] ; then
   PARTITION_ANALYSIS=kjet
 fi
 
-FIXLAM_NCO_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
-FIXgsm=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_am.20210128
-GWD_HRRRsuite_BASEDIR=/mnt/lfs4/BMC/nrtrr/RRFS/fix/fix_lam.20210128
-
-
 if [[ $MACHINE == "hera" ]] ; then
   ACCOUNT="wrfruc"
   PARTITION_DEFAULT=""
   PARTITION_FCST=""
   QUEUE_ANALYSIS="batch"
-
-  FIXLAM_NCO_BASEDIR=/scratch1/BMC/zrtrr/RRFS/fix/fix_lam.20210128
-  FIXgsm=/scratch1/BMC/zrtrr/RRFS/fix/fix_am.20210128
-  GWD_HRRRsuite_BASEDIR=/scratch1/BMC/zrtrr/RRFS/fix/fix_lam.20210128
-
-# for using RAP as boundary and initial
-#  EXTRN_MDL_SOURCE_BASEDIR_ICS=/scratch2/BMC/public/data/grids/rap/full/wrfnat/grib2
-#  EXTRN_MDL_SOURCE_BASEDIR_LBCS=/scratch2/BMC/public/data/grids/rap/full/wrfnat/grib2
-# for using GFS as boundary and initial
-  EXTRN_MDL_SOURCE_BASEDIR_ICS=/scratch2/BMC/public/data/grids/gfs/0p25deg/grib2
-  EXTRN_MDL_SOURCE_BASEDIR_LBCS=/scratch2/BMC/public/data/grids/gfs/0p25deg/grib2
-# real-time observations on hera
-  OBSPATH=/scratch2/BMC/public/data/grids/rap/obs
-  OBSPATH_NSSLMOSIAC=/scratch2/BMC/public/data/radar/nssl/mrms/conus
-  LIGHTNING_ROOT=/scratch2/BMC/public/data/lightning
-  ENKF_FCST=/scratch1/NCEPDEV/rstprod/com/gfs/prod
 fi
-
 if [[ $MACHINE == "orion" ]] ; then
   ACCOUNT=ztrr
   QUEUE_ANALYSIS="batch"
-  FIXLAM_NCO_BASEDIR=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_lam.20210128
-  FIXgsm=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_am.20210128
-  GWD_HRRRsuite_BASEDIR=/work/noaa/wrfruc/mhu/rrfs/data/fix/fix_lam.20210128
-
 fi
-
 if [[ $MACHINE == "WCOSS_DELL_P3" ]] ; then
   ACCOUNT=HRRR-T2O
   QUEUE_ANALYSIS="dev"
   QUEUE_HPSS="dev"
-  FIXLAM_NCO_BASEDIR=/gpfs/hps3/emc/meso/save/Ming.Hu/rrfs/fix/fix_lam.20210128
-  FIXgsm=/gpfs/hps3/emc/meso/save/Ming.Hu/rrfs/fix/fix_am.20210128
-  GWD_HRRRsuite_BASEDIR=/gpfs/hps3/emc/meso/save/Ming.Hu/rrfs/fix/fix_lam.20210128
-
-  FIX_GSI=/gpfs/hps3/emc/meso/save/Ming.Hu/rrfs/fix/fix_gsi
-  FIX_CRTM=/gpfs/hps3/emc/meso/save/Ming.Hu/rrfs/fix/CRTM_v2.3.0
 fi
-
 
 VERBOSE="TRUE"
 
 RUN_ENVIR="nco"
-PREEXISTING_DIR_METHOD="upgrade"
 
 PREDEF_GRID_NAME=GSD_RAP13km
 ADDNL_OUTPUT_GRIDS=( "130" "242" )
@@ -75,95 +40,55 @@ TILE_LABELS="NA"
 TILE_SETS="full"
 
 DO_DACYCLE="TRUE"
+#DO_SURFACE_CYCLE="TRUE"
 #DO_SPINUP="TRUE"
-#DO_RETRO="TRUE"
-#LBCS_ICS_ONLY="TRUE"
+DO_RETRO="TRUE"
 
-AIRCRAFT_REJECT="/home/amb-verif/acars_RR/amdar_reject_lists"
-SFCOBS_USELIST="/lfs4/BMC/amb-verif/rap_ops_mesonet_uselists"
 QUILTING="TRUE"
 CCPP_PHYS_SUITE="FV3_RAP"
 
 EXTRN_MDL_ICS_OFFSET_HRS="3"
-BOUNDARY_LEN_HRS="15"
+BOUNDARY_LEN_HRS="21"
 BOUNDARY_LONG_LEN_HRS="1"
 LBC_SPEC_INTVL_HRS="1"
-EXTRN_MDL_LBCS_OFFSET_HRS="6"
+EXTRN_MDL_LBCS_OFFSET_HRS="0"
 EXTRN_MDL_LBCS_SEARCH_OFFSET_HRS="0"
 
-DATE_FIRST_CYCL="20210812"
-DATE_LAST_CYCL="20210813"
+# avaialble retro period:
+# 20210511-20210531; 20210718-20210801
+DATE_FIRST_CYCL="20210512"
+DATE_LAST_CYCL="20210513"
 CYCL_HRS=( "00" "12" )
 CYCL_HRS_SPINSTART=("03" "15")
 CYCL_HRS_PRODSTART=("03" "15")
-CYCLEMONTH="7-9"
-#CYCLEDAY="1-4"
-
-if [[ $DO_RETRO == "TRUE" ]] ; then
-
-  if [[ $MACHINE == "jet" ]] ; then
-    EXTRN_MDL_SOURCE_BASEDIR_ICS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/hrrr/conus/wrfnat/grib2
-    EXTRN_MDL_SOURCE_BASEDIR_LBCS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/rap/full/wrfnat/grib2
-#    EXTRN_MDL_SOURCE_BASEDIR_LBCS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/gfs/0p25deg/grib2
-    OBSPATH=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/obs_rap
-    OBSPATH_NSSLMOSIAC=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/reflectivity
-    LIGHTNING_ROOT=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/lightning/vaisala/netcdf/
-    ENKF_FCST=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/enkf/atm
-  fi
-  if [[ $MACHINE == "hera" ]] ; then
-    EXTRN_MDL_SOURCE_BASEDIR_ICS=/scratch2/BMC/zrtrr/rli/data/hrrr/conus/wrfnat/grib2
-    EXTRN_MDL_SOURCE_BASEDIR_LBCS=/scratch2/BMC/zrtrr/rli/data/rap/full/wrfnat/grib2
-#    EXTRN_MDL_SOURCE_BASEDIR_LBCS=/scratch2/BMC/zrtrr/rli/data/gfs/0p25deg/grib2
-    OBSPATH=/scratch2/BMC/zrtrr/rli/data/obs_rap
-    OBSPATH_NSSLMOSIAC=/scratch2/BMC/zrtrr/rli/data/reflectivity
-    LIGHTNING_ROOT=/scratch2/BMC/zrtrr/rli/data/lightning/vaisala/netcdf/
-    ENKF_FCST=/scratch2/BMC/zrtrr/rli/data/enkf/atm
-  fi
-  if [[ $MACHINE == "orion" ]] ; then
-    EXTRN_MDL_SOURCE_BASEDIR_ICS=/work/noaa/wrfruc/mhu/rrfs/data/gfs
-    EXTRN_MDL_SOURCE_BASEDIR_LBCS=/work/noaa/wrfruc/mhu/rrfs/data/gfs
-    OBSPATH=/work/noaa/wrfruc/mhu/rrfs/data/obs_rap
-  fi
-
-  if [[ $LBCS_ICS_ONLY == "TRUE" ]]; then
-    PREEXISTING_DIR_METHOD="rename"
-    INITIAL_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 12:00:00"
-    BOUNDARY_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 06:00:00"
-  else
-    PREEXISTING_DIR_METHOD="upgrade"
-    PROD_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 01:00:00"
-    POSTPROC_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 01:00:00"
-    POSTPROC_LONG_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 06:00:00"
-    if [[ $DO_SPINUP == "TRUE" ]] ; then
-      SPINUP_CYCLEDEF="00 03-08,15-20 ${CYCLEDAY} ${CYCLEMONTH} 2021 *"
-    fi
-  fi
-else
-  INITIAL_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 12:00:00"
-  BOUNDARY_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 06:00:00"
-  PROD_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 01:00:00"
-  POSTPROC_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 01:00:00"
-  POSTPROC_LONG_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 06:00:00"
-  if [[ $DO_SPINUP == "TRUE" ]] ; then
-    SPINUP_CYCLEDEF="00 03-08,15-20 ${CYCLEDAY} ${CYCLEMONTH} 2021 *"
-  fi
-  ARCHIVE_CYCLEDEF="${DATE_FIRST_CYCL}0700 ${DATE_LAST_CYCL}2300 24:00:00"
+#CYCLEMONTH="5"
+#CYCLEDAY="12-14"
+#
+PREEXISTING_DIR_METHOD="upgrade"
+INITIAL_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 12:00:00"
+BOUNDARY_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 06:00:00"
+PROD_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 01:00:00"
+POSTPROC_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 01:00:00"
+POSTPROC_LONG_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 03:00:00"
+if [[ $DO_SPINUP == "TRUE" ]] ; then
+  SPINUP_CYCLEDEF="00 03-08,15-20 ${CYCLEDAY} ${CYCLEMONTH} 2021 *"
 fi
+ARCHIVE_CYCLEDEF="${DATE_FIRST_CYCL}0700 ${DATE_LAST_CYCL}2300 24:00:00"
 
 FCST_LEN_HRS="3"
 FCST_LEN_HRS_SPINUP="2"
 POSTPROC_LEN_HRS="3"
-POSTPROC_LONG_LEN_HRS="6"
+POSTPROC_LONG_LEN_HRS="12"
 #FCST_LEN_HRS_CYCLES=(21 21 21 63 21 21 21 21 21 63 21 21 21 21 21 63 21 21 21 21 21 63 21 21)
 for i in {0..23}; do FCST_LEN_HRS_CYCLES[$i]=3; done
-for i in {3..23..6}; do FCST_LEN_HRS_CYCLES[$i]=6; done
+for i in {0..23..3}; do FCST_LEN_HRS_CYCLES[$i]=12; done
 DA_CYCLE_INTERV="1"
-RESTART_INTERVAL="1 2 3 4 5 6"
+RESTART_INTERVAL="1"
 
 NCORES_RUN_ANAL=240
-HALO_BLEND=10
+HALO_BLEND=20
 
-WTIME_RUN_FCST="07:30:00"
+WTIME_RUN_FCST="02:30:00"
 WTIME_MAKE_LBCS="02:30:00"
 
 NNODES_RUN_POST="1"
@@ -201,33 +126,10 @@ MODEL="RRFS_NA_13km"
 RUN="RRFS_NA_13km_dev1"
 COMINgfs=""
 
-STMP="/lfs4/BMC/nrtrr/NCO_dirs/stmp"  # Path to directory STMP that mostly contains input files.
-PTMP="/lfs4/BMC/nrtrr/NCO_dirs/ptmp"  # Path to directory STMP that mostly contains input files.
-NWGES="/lfs4/BMC/nrtrr/NCO_dirs/nwges"  # Path to directory NWGES that save boundary, cold initial, restart files
+. set_rrfs_config.sh
 
-if [[ $DO_RETRO == "TRUE" ]] ; then
-  CLEAN_OLDPROD_HRS="240"
-  CLEAN_OLDLOG_HRS="240"
-  CLEAN_OLDRUN_HRS="6"
-  CLEAN_OLDFCST_HRS="6"
-  CLEAN_OLDSTMPPOST_HRS="6"
-  if [[ $LBCS_ICS_ONLY == "TRUE" ]]; then
-    CLEAN_OLDRUN_HRS="7777"
-    CLEAN_OLDFCST_HRS="7777"
-  fi
-fi
+STMP="YourOwnSpace/stmp"  # Path to directory STMP that mostly contains input files.
+PTMP="YourOwnSpace/ptmp"  # Path to directory STMP that mostly contains input files.
+NWGES="YourOwnSpace/nwges"  # Path to directory NWGES that save boundary, cold initial, restart files
 
-#
-# In NCO mode, the user must manually (e.g. after doing the build step)
-# create the symlink "${FIXrrfs}/fix_sar" that points to EMC's FIXLAM
-# directory on the machine.  For example, on hera, the symlink's target
-# needs to be
-#
-#   /scratch2/NCEPDEV/fv3-cam/emc.campara/fix_fv3cam/fix_sar
-#
-# The experiment generation script will then set FIXLAM to 
-#
-#   FIXLAM="${FIXrrfs}/fix_lam/${EMC_GRID_NAME}"
-#
-# where EMC_GRID_NAME has the value set above.
 #
