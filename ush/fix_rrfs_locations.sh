@@ -22,7 +22,7 @@ elif [[ -d /jetmon ]] ; then
     FIX_RRFS_LOCATION="/lfs4/BMC/nrtrr/FIX_RRFS"
 elif [[ -d /glade ]] ; then
     PLATFORM=cheyenne
-    FIX_RRFS_LOCATION="/to/do"
+    FIX_RRFS_LOCATION="/glade/p/ral/jntp/FIX_RRFS"
 elif [[ -d /sw/gaea ]] ; then
     PLATFORM=gaea
     FIX_RRFS_LOCATION="/to/do"
