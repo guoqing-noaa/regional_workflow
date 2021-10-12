@@ -134,7 +134,7 @@ fi
 cd_vrfy ${modelinputdir}
 
 if [ ${BKTYPE} -eq 1 ] ; then  # cold start, use prepare cold strat initial files from ics
-    bkpath=${lbcs_root}/$YYYYMMDD$HH/ics
+    bkpath=${lbcs_root}/$YYYYMMDD$HH${SLASH_ENSMEM_SUBDIR}/ics
     if [ -r "${bkpath}/gfs_data.tile7.halo0.nc" ]; then
       cp_vrfy ${bkpath}/gfs_bndy.tile7.000.nc gfs_bndy.tile7.000.nc        
       cp_vrfy ${bkpath}/gfs_ctrl.nc gfs_ctrl.nc        
@@ -158,7 +158,7 @@ if [ ${BKTYPE} -eq 1 ] ; then  # cold start, use prepare cold strat initial file
 
           offset_hours=$(( ${DA_CYCLE_INTERV} + ${ndayinhour} ))
           YYYYMMDDHHmInterv=$( date +%Y%m%d%H -d "${START_DATE} ${offset_hours} hours ago" )
-          bkpath=${fg_root}/${YYYYMMDDHHmInterv}/${surface_file_dir_name}/RESTART  
+          bkpath=${fg_root}/${YYYYMMDDHHmInterv}${SLASH_ENSMEM_SUBDIR}/${surface_file_dir_name}/RESTART  
 
           n=${DA_CYCLE_INTERV}
           while [[ $n -le 6 ]] ; do
@@ -172,7 +172,7 @@ if [ ${BKTYPE} -eq 1 ] ; then  # cold start, use prepare cold strat initial file
              n=$((n + ${DA_CYCLE_INTERV}))
              offset_hours=$(( ${n} + ${ndayinhour} ))
              YYYYMMDDHHmInterv=$( date +%Y%m%d%H -d "${START_DATE} ${offset_hours} hours ago" )
-             bkpath=${fg_root}/${YYYYMMDDHHmInterv}/${surface_file_dir_name}/RESTART  # cycling, use background from RESTART
+             bkpath=${fg_root}/${YYYYMMDDHHmInterv}${SLASH_ENSMEM_SUBDIR}/${surface_file_dir_name}/RESTART  # cycling, use background from RESTART
              print_info_msg "$VERBOSE" "Trying this path: ${bkpath}"
           done
         fi
@@ -214,7 +214,7 @@ else
   fi
 
   YYYYMMDDHHmInterv=$( date +%Y%m%d%H -d "${START_DATE} ${DA_CYCLE_INTERV} hours ago" )
-  bkpath=${fg_root}/${YYYYMMDDHHmInterv}/${fg_restart_dirname}/RESTART  # cycling, use background from RESTART
+  bkpath=${fg_root}/${YYYYMMDDHHmInterv}${SLASH_ENSMEM_SUBDIR}/${fg_restart_dirname}/RESTART  # cycling, use background from RESTART
 
 #   let us figure out which backgound is available
 #
@@ -233,7 +233,7 @@ else
     else
       n=$((n + ${DA_CYCLE_INTERV}))
       YYYYMMDDHHmInterv=$( date +%Y%m%d%H -d "${START_DATE} ${n} hours ago" )
-      bkpath=${fg_root}/${YYYYMMDDHHmInterv}/${fg_restart_dirname}/RESTART  # cycling, use background from RESTART
+      bkpath=${fg_root}/${YYYYMMDDHHmInterv}${SLASH_ENSMEM_SUBDIR}/${fg_restart_dirname}/RESTART  # cycling, use background from RESTART
       print_info_msg "$VERBOSE" "Trying this path: ${bkpath}"
     fi
   done
@@ -248,7 +248,7 @@ else
     cp_vrfy ${bkpath}/${restart_prefix}fv_core.res.nc             fv_core.res.nc
     cp_vrfy ${bkpath}/${restart_prefix}fv_srf_wnd.res.tile1.nc    fv_srf_wnd.res.tile1.nc
     cp_vrfy ${bkpath}/${restart_prefix}phy_data.nc                phy_data.nc
-    cp_vrfy ${fg_root}/${YYYYMMDDHHmInterv}/${fg_restart_dirname}/INPUT/gfs_ctrl.nc  gfs_ctrl.nc
+    cp_vrfy ${fg_root}/${YYYYMMDDHHmInterv}${SLASH_ENSMEM_SUBDIR}/${fg_restart_dirname}/INPUT/gfs_ctrl.nc  gfs_ctrl.nc
 
 # do SST update at ${SST_update_hour}z for the restart sfc_data.nc
     if [ ${HH} -eq ${SST_update_hour} ]; then
@@ -327,7 +327,7 @@ else
   n=${EXTRN_MDL_LBCS_SEARCH_OFFSET_HRS}
   end_search_hr=$(( 12 + ${EXTRN_MDL_LBCS_SEARCH_OFFSET_HRS} ))
   YYYYMMDDHHmInterv=$(date +%Y%m%d%H -d "${START_DATE} ${n} hours ago")
-  lbcs_path=${lbcs_root}/${YYYYMMDDHHmInterv}/lbcs
+  lbcs_path=${lbcs_root}/${YYYYMMDDHHmInterv}${SLASH_ENSMEM_SUBDIR}/lbcs
   while [[ $n -le ${end_search_hr} ]] ; do
     last_bdy_time=$(( n + ${FCST_LEN_HRS_thiscycle} ))
     last_bdy=$(printf %3.3i $last_bdy_time)
@@ -338,7 +338,7 @@ else
     else
       n=$((n + 1))
       YYYYMMDDHHmInterv=$(date +%Y%m%d%H -d "${START_DATE} ${n} hours ago")
-      lbcs_path=${lbcs_root}/${YYYYMMDDHHmInterv}/lbcs
+      lbcs_path=${lbcs_root}/${YYYYMMDDHHmInterv}${SLASH_ENSMEM_SUBDIR}/lbcs
     fi
   done
 #
