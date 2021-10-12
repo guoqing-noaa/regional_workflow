@@ -2,7 +2,7 @@ MACHINE="jet"
 ACCOUNT="nrtrr"
 #RESERVATION="rrfsdet"
 EXPT_BASEDIR="YourOwnSpace"
-EXPT_SUBDIR="RRFS_CONUS_13km.EnsFcst.new"
+EXPT_SUBDIR="RRFS_CONUS_13km.Ens"
 
 if [[ -n $RESERVATION ]] ; then
   ACCOUNT=rtrr
