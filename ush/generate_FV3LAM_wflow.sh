@@ -161,22 +161,10 @@ WFLOW_XML_FP="$EXPTDIR/${WFLOW_XML_FN}"
 ensmem_indx_name="\"\""
 uscore_ensmem_name="\"\""
 slash_ensmem_subdir="\"\""
-input_ensmem_subdir="\"\""
-post_ensmem_subdir="\"\""
-ensmem_name="\"\""
-input_ensmem_subdir_00="\"\""
-post_ensmem_subdir_00="\"\""
-ensmem_name_00="\"\""
 if [ "${DO_ENSEMBLE}" = "TRUE" ]; then
   ensmem_indx_name="mem"
   uscore_ensmem_name="_mem00#${ensmem_indx_name}#"
   slash_ensmem_subdir="/mem00#${ensmem_indx_name}#"
-  input_ensmem_subdir="/gep0#${ensmem_indx_name}#"
-  post_ensmem_subdir="/postprd_mem000#${ensmem_indx_name}#"
-  ensmem_name="_mem000#${ensmem_indx_name}#"
-  input_ensmem_subdir_00="/gec00"
-  post_ensmem_subdir_00="/postprd_mem0000"
-  ensmem_name_00="_mem0000"
 fi
 
 settings="\
@@ -393,12 +381,6 @@ settings="\
   'ensmem_indx_name': ${ensmem_indx_name}
   'uscore_ensmem_name': ${uscore_ensmem_name}
   'slash_ensmem_subdir': ${slash_ensmem_subdir}
-  'input_ensmem_subdir': ${input_ensmem_subdir}
-  'post_ensmem_subdir': ${post_ensmem_subdir}
-  'ensmem_name': ${ensmem_name}
-  'input_ensmem_subdir_00': ${input_ensmem_subdir_00}
-  'post_ensmem_subdir_00': ${post_ensmem_subdir_00}
-  'ensmem_name_00': ${ensmem_name_00}
   'do_enscontrol': ${DO_ENSCONTROL}
 #
 # data assimilation related parameters.
