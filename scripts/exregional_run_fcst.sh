@@ -105,7 +105,9 @@ case $MACHINE in
   "WCOSS_DELL_P3")
     ulimit -s unlimited
     ulimit -a
-    APRUN="mpirun -l -np ${PE_MEMBER01}"
+    APRUN="mpirun"
+    OMP_NUM_THREADS=4
+    OMP_STACKSIZE=2048m
     ;;
 
   "HERA")
@@ -296,7 +298,8 @@ fi
 # we use below.
 #
 if [ "${CCPP_PHYS_SUITE}" = "FV3_HRRR" ] || \
-   [ "${CCPP_PHYS_SUITE}" = "FV3_RAP" ]; then
+   [ "${CCPP_PHYS_SUITE}" = "FV3_RAP" ]  || \
+   [ "${CCPP_PHYS_SUITE}" = "FV3_GFS_v15_thompson_mynn_lam3km" ]; then
 
 
   fileids=( "ss" "ls" )
@@ -540,9 +543,9 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-export KMP_AFFINITY=scatter
+export KMP_AFFINITY=${KMP_AFFINITY:-scatter}
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1} #Needs to be 1 for dynamic build of CCPP with GFDL fast physics, was 2 before.
-export OMP_STACKSIZE=1024m
+export OMP_STACKSIZE=${OMP_STACKSIZE:-1024m}
 
 #
 #-----------------------------------------------------------------------
