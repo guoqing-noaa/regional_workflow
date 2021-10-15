@@ -91,7 +91,7 @@ case $MACHINE in
   module list
   ulimit -s unlimited
   ulimit -a
-  APRUN="mpirun -l -np ${PE_MEMBER01}"
+  APRUN="mpirun"
   ;;
 #
 "THEIA")
