@@ -1,5 +1,6 @@
 #!/bin/bash
-MACHINE="jet"
+source fix_rrfs_locations.sh #determine current platform
+MACHINE=${PLATFORM}
 ACCOUNT="nrtrr"
 RESERVATION="rrfsdet"
 EXPT_BASEDIR="/home/rtrr/RTMA"
@@ -208,4 +209,33 @@ COMINgfs=""
 STMP="/lfs4/BMC/nrtrr/NCO_dirs/stmp"  # Path to directory STMP that mostly contains input files.
 PTMP="/lfs4/BMC/nrtrr/NCO_dirs/ptmp"  # Path to directory STMP that mostly contains input files.
 NWGES="/lfs4/BMC/nrtrr/NCO_dirs/nwges"  # Path to directory NWGES that save boundary, cold initial, restart files
+
+# change settings if it is wcoss_dell_p3
+if [[ "$MACHINE" == "wcoss_dell_p3" ]; then
+  ACCOUNT="RTMA-T2O"
+  RESERVATION=""
+  EXPT_BASEDIR="/gpfs/dell2/emc/modeling/save/${USER}/RTMA-NA"
+  PARTITION_DEFAULT=""
+  OBSPATH_NSSLMOSIAC=/gpfs/dell1/nco/ops/dcom/prod/ldmdata/obs/upperair/mrms/conus
+  #FIXLAM_NCO_BASEDIR=/gpfs/dell2/emc/modeling/save/Annette.Gibbs/rrfs/fix/fix_lam.20210128
+  AIRCRAFT_REJECT="" #let the generating step set it to a correct value
+  SFCOBS_USELIST="" #let the generating step set it to a correct value
+  CCPP_PHYS_SUITE="FV3_GFS_v15_thompson_mynn_lam3km"
+  HALO_BLEND=10 # must use 10 as that is what lamdax uses
+
+  WTIME_RUN_ANAL="00:30:00"
+  NNODES_RUN_ANAL="70"
+  PPN_RUN_ANAL="4"
+  WTIME_RUN_FCST="00:20:00"
+  NATIVE_RUN_FCST="-R span[ptile=14] -R affinity[core\(2\):distribute=balance]"
+
+  FG_ROOTDIR="/gpfs/dell2/ptmp/Annette.Gibbs/nwges/para/RRFS_NA_3km" #only needed by RTMA; Annette is copying files to this directory
+  OBSPATH="/gpfs/dell2/ptmp/Shelley.Melchior/rtma_3d/com/rtma/prod"
+  ENKF_FCST="/gpfs/dell1/nco/ops/com/gfs/prod"
+  LIGHTNING_ROOT="/gpfs/dell2/ptmp/Shelley.Melchior/rtma_3d/com/rtma/prod"
+
+  STMP="/gpfs/dell2/ptmp/${USER}/stmp"  # Path to directory STMP that mostly contains input files.
+  PTMP="/gpfs/dell2/ptmp/${USER}/ptmp"  # Path to directory STMP that mostly contains input files.
+  NWGES="/gpfs/dell2/ptmp/${USER}/nwges"  # Path to directory NWGES that save boundary, cold initial, restart files
+fi
 
