@@ -230,7 +230,7 @@ if [[ "$MACHINE" == "wcoss_dell_p3" ]; then
   NATIVE_RUN_FCST="-R span[ptile=14] -R affinity[core\(2\):distribute=balance]"
 
   FG_ROOTDIR="/gpfs/dell2/ptmp/Annette.Gibbs/nwges/para/RRFS_NA_3km" #only needed by RTMA; Annette is copying files to this directory
-  OBSPATH="/gpfs/dell2/ptmp/Shelley.Melchior/rtma_3d/com/rtma/prod"
+  OBSPATH="/gpfs/hps/nco/ops/com/rap/prod"
   ENKF_FCST="/gpfs/dell1/nco/ops/com/gfs/prod"
   LIGHTNING_ROOT="/gpfs/dell2/ptmp/Shelley.Melchior/rtma_3d/com/rtma/prod"
 
