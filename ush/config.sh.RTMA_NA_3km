@@ -211,11 +211,15 @@ PTMP="/lfs4/BMC/nrtrr/NCO_dirs/ptmp"  # Path to directory STMP that mostly conta
 NWGES="/lfs4/BMC/nrtrr/NCO_dirs/nwges"  # Path to directory NWGES that save boundary, cold initial, restart files
 
 # change settings if it is wcoss_dell_p3
-if [[ "$MACHINE" == "wcoss_dell_p3" ]; then
+if [[ "$MACHINE" == "wcoss_dell_p3" ]]; then
   ACCOUNT="RTMA-T2O"
   RESERVATION=""
   EXPT_BASEDIR="/gpfs/dell2/emc/modeling/save/${USER}/RTMA-NA"
+  SERVICE_ACCOUNT=""
   PARTITION_DEFAULT=""
+  PARTITION_FCST=""
+  PARTITION_ANALYSIS=""
+
   OBSPATH_NSSLMOSIAC=/gpfs/dell1/nco/ops/dcom/prod/ldmdata/obs/upperair/mrms/conus
   #FIXLAM_NCO_BASEDIR=/gpfs/dell2/emc/modeling/save/Annette.Gibbs/rrfs/fix/fix_lam.20210128
   AIRCRAFT_REJECT="" #let the generating step set it to a correct value
@@ -226,8 +230,16 @@ if [[ "$MACHINE" == "wcoss_dell_p3" ]; then
   WTIME_RUN_ANAL="00:30:00"
   NNODES_RUN_ANAL="70"
   PPN_RUN_ANAL="4"
+
+  LAYOUT_X=42
+  LAYOUT_Y=45
   WTIME_RUN_FCST="00:20:00"
-  NATIVE_RUN_FCST="-R span[ptile=14] -R affinity[core\(2\):distribute=balance]"
+  PPN_RUN_FCST="14"
+  #NATIVE_RUN_FCST="-R span[ptile=14] -R affinity[core\(2\):distribute=balance]"
+  #NATIVE_RUN_FCST="-R affinity[core\(2\):distribute=balance]"
+  WRTCMP_write_groups="3"
+  WRTCMP_write_tasks_per_group="84"
+  #NATIVE_RUN_POST="-R affinity[core]"
 
   FG_ROOTDIR="/gpfs/dell2/ptmp/Annette.Gibbs/nwges/para/RRFS_NA_3km" #only needed by RTMA; Annette is copying files to this directory
   OBSPATH="/gpfs/hps/nco/ops/com/rap/prod"

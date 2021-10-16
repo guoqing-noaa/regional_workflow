@@ -106,7 +106,7 @@ case $MACHINE in
     ulimit -s unlimited
     ulimit -a
     APRUN="mpirun"
-    OMP_NUM_THREADS=4
+    OMP_NUM_THREADS=2
     OMP_STACKSIZE=2048m
     ;;
 
