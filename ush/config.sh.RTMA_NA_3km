@@ -239,6 +239,9 @@ if [[ "$MACHINE" == "wcoss_dell_p3" ]]; then
   #NATIVE_RUN_FCST="-R affinity[core\(2\):distribute=balance]"
   WRTCMP_write_groups="3"
   WRTCMP_write_tasks_per_group="84"
+
+  NNODES_RUN_POST="6"
+  PPN_RUN_POST="24"
   #NATIVE_RUN_POST="-R affinity[core]"
 
   FG_ROOTDIR="/gpfs/dell2/ptmp/Annette.Gibbs/nwges/para/RRFS_NA_3km" #only needed by RTMA; Annette is copying files to this directory

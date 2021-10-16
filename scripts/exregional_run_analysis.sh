@@ -92,7 +92,7 @@ case $MACHINE in
   ulimit -s unlimited
   ulimit -a
   APRUN="mpirun"
-  export OMP_NUM_THREADS=7
+  export OMP_NUM_THREADS=4
   export OMP_STACKSIZE=2048M
   ;;
 #
