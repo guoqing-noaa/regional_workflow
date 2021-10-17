@@ -1108,8 +1108,8 @@ FH_DFI_RADAR="-20000000000"
 QUILTING="TRUE"
 PRINT_ESMF="FALSE"
 
-WRTCMP_write_groups="1"
-WRTCMP_write_tasks_per_group="20"
+WRTCMP_write_groups=""
+WRTCMP_write_tasks_per_group=""
 
 WRTCMP_output_grid="''"
 WRTCMP_cen_lon=""

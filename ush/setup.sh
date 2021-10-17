@@ -406,6 +406,8 @@ case $MACHINE in
     QUEUE_DEFAULT=${QUEUE_DEFAULT:-"dev"}
     QUEUE_HPSS=${QUEUE_HPSS:-"dev_transfer"}
     QUEUE_FCST=${QUEUE_FCST:-"dev"}
+    QUEUE_ANALYSIS=${QUEUE_ANALYSIS:-"dev"}
+    QUEUE_WGRIB2=${QUEUE_WGRIB2:-"dev"}
     ;;
 
   "HERA")
