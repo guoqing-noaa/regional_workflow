@@ -315,7 +315,7 @@ FV3_GFS_v15_thompson_mynn_lam3km:
     do_sfcperts: !!python/none
     effr_in: true
     gwd_opt: 2
-    iaer: 1011
+    iaer: 5111
     icliq_sw: 2
     imfdeepcnv: 2
     imfshalcnv: 2
