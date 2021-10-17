@@ -229,7 +229,7 @@ if [[ "$MACHINE" == "wcoss_dell_p3" ]]; then
 
   WTIME_RUN_ANAL="00:30:00"
   NNODES_RUN_ANAL="70"
-  PPN_RUN_ANAL="4"
+  PPN_RUN_ANAL="7"
 
   LAYOUT_X=42
   LAYOUT_Y=45
@@ -238,8 +238,8 @@ if [[ "$MACHINE" == "wcoss_dell_p3" ]]; then
   WRTCMP_write_groups="3"
   WRTCMP_write_tasks_per_group="84"
 
-  NNODES_RUN_POST="6"
-  PPN_RUN_POST="24"
+  NNODES_RUN_POST="10"
+  PPN_RUN_POST="28"
 
   FG_ROOTDIR="/gpfs/dell2/ptmp/Annette.Gibbs/nwges/para/RRFS_NA_3km" #only needed by RTMA; Annette is copying files to this directory
   OBSPATH="/gpfs/hps/nco/ops/com/rap/prod"
