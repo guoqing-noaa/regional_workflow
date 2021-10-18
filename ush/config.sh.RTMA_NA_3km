@@ -226,6 +226,7 @@ if [[ "$MACHINE" == "wcoss_dell_p3" ]]; then
   SFCOBS_USELIST="" #let the generating step set it to a correct value
   CCPP_PHYS_SUITE="FV3_GFS_v15_thompson_mynn_lam3km"
   HALO_BLEND=10 # must use 10 as that is what lamdax uses
+  CUSTOM_POST_CONFIG_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/postxconfig-NT-rtma_NOAHLSM.txt"
 
   WTIME_RUN_ANAL="00:30:00"
   NNODES_RUN_ANAL="70"
