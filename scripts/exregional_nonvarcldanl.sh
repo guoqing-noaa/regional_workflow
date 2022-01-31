@@ -171,14 +171,19 @@ fi
 cp_vrfy ${fixgriddir}/fv3_akbk                               fv3_akbk
 cp_vrfy ${fixgriddir}/fv3_grid_spec                          fv3_grid_spec
 
+if [ ${DO_NONVAR_CLDANAL} == "JEIN" ]; then
+  cp_or_ln_vrfy="cp_vrfy"
+else
+  cp_or_ln_vrfy="ln_vrfy -snf"
+fi
 if [ -r ${bkpath}/phy_data.nc ]; then  # Use background from restart
-  ln_vrfy  -snf  ${bkpath}/fv_core.res.tile1.nc         fv3_dynvars
-  ln_vrfy  -snf  ${bkpath}/fv_tracer.res.tile1.nc       fv3_tracer
-  ln_vrfy -s ${bkpath}/sfc_data.nc                  fv3_sfcdata
+  cp_or_ln_vrfy ${bkpath}/fv_core.res.tile1.nc         fv3_dynvars
+  cp_or_ln_vrfy ${bkpath}/fv_tracer.res.tile1.nc       fv3_tracer
+  cp_or_ln_vrfy ${bkpath}/sfc_data.nc                  fv3_sfcdata
 else                                   # Use background from input (cold start)
-  ln_vrfy -s ${bkpath}/sfc_data.tile7.halo0.nc      fv3_sfcdata
-  ln_vrfy  -snf  ${bkpath}/gfs_data.tile7.halo0.nc      fv3_dynvars
-  ln_vrfy  -snf  ${bkpath}/gfs_data.tile7.halo0.nc      fv3_tracer
+  cp_or_ln_vrfy ${bkpath}/sfc_data.tile7.halo0.nc      fv3_sfcdata
+  cp_or_ln_vrfy ${bkpath}/gfs_data.tile7.halo0.nc      fv3_dynvars
+  cp_or_ln_vrfy ${bkpath}/gfs_data.tile7.halo0.nc      fv3_tracer
 fi
 
 #

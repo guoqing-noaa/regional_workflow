@@ -1890,7 +1890,9 @@ GWD_HRRRsuite_BASEDIR=""
 #
 # Parameters for analysis options
 # DO_NONVAR_CLDANAL: 
-#     Flag turn on the non-var cloud analysis.
+#     TRUE: do cloud analysis; FALSE: don't do cloud analysis
+#     JEIN: run cloud analysis, but keep changes local and do NOT affect forecasts
+#           "JEIN" is a German word (portmanteau), meaning "yes(ja) and no(nein)"
 # DO_REFL2TTEN: 
 #     Flag turn on the radar reflectivity to temperature tendenecy.
 #
