@@ -126,7 +126,7 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-extrn_mdl_staging_dir="${CYCLE_DIR}/${EXTRN_MDL_NAME_ICS}/for_ICS"
+extrn_mdl_staging_dir="${CYCLE_DIR}${SLASH_ENSMEM_SUBDIR}/${EXTRN_MDL_NAME_ICS}/for_ICS"
 extrn_mdl_var_defns_fp="${extrn_mdl_staging_dir}/${EXTRN_MDL_ICS_VAR_DEFNS_FN}"
 . ${extrn_mdl_var_defns_fp}
 #
@@ -165,10 +165,13 @@ case "${CCPP_PHYS_SUITE}" in
   "FV3_HRRR" | \
   "FV3_RAP" )
     if [ "${EXTRN_MDL_NAME_ICS}" = "RAP" ] || \
+       [ "${EXTRN_MDL_NAME_ICS}" = "HRRRDAS" ] || \
        [ "${EXTRN_MDL_NAME_ICS}" = "HRRR" ]; then
       varmap_file="GSDphys_var_map.txt"
     elif [ "${EXTRN_MDL_NAME_ICS}" = "NAM" ] || \
          [ "${EXTRN_MDL_NAME_ICS}" = "FV3GFS" ] || \
+         [ "${EXTRN_MDL_NAME_ICS}" = "GEFS" ] || \
+         [ "${EXTRN_MDL_NAME_ICS}" = "GDASENKF" ] || \
          [ "${EXTRN_MDL_NAME_ICS}" = "GSMGFS" ]; then
       varmap_file="GFSphys_var_map.txt"
     fi
@@ -340,6 +343,7 @@ convert_nst=""
 #
 nsoill_out="4"
 if [ "${EXTRN_MDL_NAME_ICS}" = "HRRR" -o \
+     "${EXTRN_MDL_NAME_ICS}" = "HRRRDAS" -o \
      "${EXTRN_MDL_NAME_ICS}" = "RAP" ] && \
    [ "${SDF_USES_RUC_LSM}" = "TRUE" ]; then
   nsoill_out="9"
@@ -360,6 +364,7 @@ fi
 #
 thomp_mp_climo_file=""
 if [ "${EXTRN_MDL_NAME_ICS}" != "HRRR" -a \
+     "${EXTRN_MDL_NAME_ICS}" != "HRRRDAS" -a \
      "${EXTRN_MDL_NAME_ICS}" != "RAP" ] && \
    [ "${SDF_USES_THOMPSON_MP}" = "TRUE" ]; then
   thomp_mp_climo_file="${THOMPSON_MP_CLIMO_FP}"
@@ -425,6 +430,35 @@ case "${EXTRN_MDL_NAME_ICS}" in
   tg3_from_soil=True
   ;;
 
+"GDASENKF")
+  tracers_input="[\"spfh\",\"clwmr\",\"o3mr\",\"icmr\",\"rwmr\",\"snmr\",\"grle\"]"
+  tracers="[\"sphum\",\"liq_wat\",\"o3mr\",\"ice_wat\",\"rainwat\",\"snowwat\",\"graupel\"]"
+  external_model="GFS"
+  input_type="gaussian_netcdf"
+  convert_nst=False
+  fn_atm_nemsio="${EXTRN_MDL_FNS[0]}"
+  fn_sfc_nemsio="${EXTRN_MDL_FNS[1]}"
+  vgtyp_from_climo=True
+  sotyp_from_climo=True
+  vgfrc_from_climo=True
+  minmax_vgfrc_from_climo=True
+  lai_from_climo=True
+  tg3_from_soil=True
+  ;;
+
+"GEFS")
+  external_model="GFS"
+  fn_grib2="${EXTRN_MDL_FNS[0]}"
+  input_type="grib2"
+  convert_nst=False
+  vgtyp_from_climo=True
+  sotyp_from_climo=True
+  vgfrc_from_climo=True
+  minmax_vgfrc_from_climo=True
+  lai_from_climo=True
+  tg3_from_soil=False
+  ;;
+
 "HRRR")
   external_model="HRRR"
   fn_grib2="${EXTRN_MDL_FNS[0]}"
@@ -433,6 +467,25 @@ case "${EXTRN_MDL_NAME_ICS}" in
 # Path to the HRRRX geogrid file.
 #
   geogrid_file_input_grid="${FIXgsm}/geo_em.d01.nc_HRRRX"
+# Note that vgfrc, shdmin/shdmax (minmax_vgfrc), and lai fields are only available in HRRRX
+# files after mid-July 2019, and only so long as the record order didn't change afterward
+  vgtyp_from_climo=False
+  sotyp_from_climo=False
+  vgfrc_from_climo=False
+  minmax_vgfrc_from_climo=False
+  lai_from_climo=False
+  tg3_from_soil=True
+  convert_nst=False
+  ;;
+
+"HRRRDAS")
+  external_model="HRRR"
+  fn_grib2="${EXTRN_MDL_FNS[0]}"
+  input_type="grib2"
+#
+# Path to the HRRRX geogrid file.
+#
+  geogrid_file_input_grid="${FIXgsm}/hrrrdas_geo_em.d02.nc"
 # Note that vgfrc, shdmin/shdmax (minmax_vgfrc), and lai fields are only available in HRRRX
 # files after mid-July 2019, and only so long as the record order didn't change afterward
   vgtyp_from_climo=False
@@ -489,9 +542,21 @@ esac
 #
 #-----------------------------------------------------------------------
 #
+yyyymmdd="${EXTRN_MDL_CDATE:0:8}"
 mm="${EXTRN_MDL_CDATE:4:2}"
 dd="${EXTRN_MDL_CDATE:6:2}"
 hh="${EXTRN_MDL_CDATE:8:2}"
+
+fhr="${EXTRN_MDL_ICS_OFFSET_HRS}"
+cdate_crnt_fhr=$( date --utc --date "${yyyymmdd} ${hh} UTC + ${fhr} hours" "+%Y%m%d%H" )
+#
+# Get the month, day, and hour corresponding to the current forecast time
+# of the the external model.
+#
+  mm="${cdate_crnt_fhr:4:2}"
+  dd="${cdate_crnt_fhr:6:2}"
+  hh="${cdate_crnt_fhr:8:2}"
+
 #
 #-----------------------------------------------------------------------
 #
@@ -625,49 +690,6 @@ mv_vrfy out.sfc.tile${TILE_RGNL}.nc \
 mv_vrfy gfs_ctrl.nc ${ics_dir}
 
 mv_vrfy gfs.bndy.nc ${ics_dir}/gfs_bndy.tile${TILE_RGNL}.000.nc
-#
-#-----------------------------------------------------------------------
-#
-# Process FVCOM Data
-#
-#-----------------------------------------------------------------------
-#
-if [ "${USE_FVCOM}" = "TRUE" ]; then
-
-  fvcom_exec_fn="fvcom_to_FV3"
-  fvcom_exec_fp="$EXECDIR/${fvcom_exec_fn}"
-  if [ ! -f "${fvcom_exec_fp}" ]; then
-    print_err_msg_exit "\
-The executable (fvcom_exec_fp) for processing FVCOM data onto FV3-LAM
-native grid does not exist:
-  fvcom_exec_fp = \"${fvcom_exec_fp}\"
-Please ensure that you've built this executable."
-  fi
-  cp_vrfy ${fvcom_exec_fp} ${ics_dir}/.
-  fvcom_data_fp="${FVCOM_DIR}/${FVCOM_FILE}"
-  if [ ! -f "${fvcom_data_fp}" ]; then
-    print_err_msg_exit "\
-The file or path (fvcom_data_fp) does not exist:
-  fvcom_data_fp = \"${fvcom_data_fp}\"
-Please check the following user defined variables:
-  FVCOM_DIR = \"${FVCOM_DIR}\"
-  FVCOM_FILE= \"${FVCOM_FILE}\" "
-  fi
-
-  cp_vrfy ${fvcom_data_fp} ${ics_dir}/fvcom.nc
-  cd_vrfy ${ics_dir}
-  ${APRUN} ${fvcom_exec_fn} sfc_data.tile${TILE_RGNL}.halo${NH0}.nc fvcom.nc || \
-  print_err_msg_exit "\
-Call to executable (fvcom_exe) to modify sfc fields for FV3-LAM failed:
-  fvcom_exe = \"${fvcom_exe}\"
-The following variables were being used:
-  FVCOM_DIR = \"${FVCOM_DIR}\"
-  FVCOM_FILE = \"${FVCOM_FILE}\"
-  ics_dir = \"${ics_dir}\"
-  fvcom_exe_dir = \"${fvcom_exe_dir}\"
-  fvcom_exe = \"${fvcom_exe}\""
-fi
-
 #
 #-----------------------------------------------------------------------
 #

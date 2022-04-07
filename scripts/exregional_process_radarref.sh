@@ -55,7 +55,7 @@ with FV3 for the specified cycle.
 #
 #-----------------------------------------------------------------------
 #
-valid_args=( "CYCLE_DIR" "WORKDIR")
+valid_args=( "CYCLE_DIR" "cycle_type" "WORKDIR")
 process_args valid_args "$@"
 #
 #-----------------------------------------------------------------------
@@ -89,6 +89,12 @@ case $MACHINE in
   APRUN="mpirun -l -np 36"
   ;;
 #
+"WCOSS_DELL_P3")
+  ulimit -s unlimited
+  ulimit -a
+  APRUN="mpirun -l -np 36"
+  ;;
+#
 "HERA")
   ulimit -s unlimited
   ulimit -a
@@ -116,6 +122,7 @@ case $MACHINE in
   ;;
 #
 esac
+
 #
 #-----------------------------------------------------------------------
 #
@@ -134,6 +141,36 @@ MM=${YYYYMMDDHH:4:2}
 DD=${YYYYMMDDHH:6:2}
 HH=${YYYYMMDDHH:8:2}
 YYYYMMDD=${YYYYMMDDHH:0:8}
+
+#
+#-----------------------------------------------------------------------
+#
+# Find cycle type: cold or warm 
+#  BKTYPE=0: warm start
+#  BKTYPE=1: cold start
+#
+#-----------------------------------------------------------------------
+#
+BKTYPE=0
+if [ ${DO_SPINUP} == "TRUE" ]; then
+  if [ ${cycle_type} == "spinup" ]; then
+    for cyc_start in "${CYCL_HRS_SPINSTART[@]}"; do
+      if [ ${HH} -eq ${cyc_start} ]; then
+        BKTYPE=1
+      fi
+    done
+  fi
+else
+  for cyc_start in "${CYCL_HRS_PRODSTART[@]}"; do
+    if [ ${HH} -eq ${cyc_start} ]; then
+        BKTYPE=1
+    fi
+  done
+fi
+
+n_iolayouty=$(($IO_LAYOUT_Y-1))
+list_iolayout=$(seq 0 $n_iolayouty)
+
 #
 #-----------------------------------------------------------------------
 #
@@ -163,7 +200,19 @@ for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
 #
 #-----------------------------------------------------------------------
 
-  cp_vrfy ${fixgriddir}/fv3_grid_spec          fv3sar_grid_spec.nc
+  if [ ${BKTYPE} -eq 1 ]; then
+    cp_vrfy ${fixgriddir}/fv3_grid_spec          fv3sar_grid_spec.nc
+  else
+    if [ "${IO_LAYOUT_Y}" == "1" ]; then
+      cp_vrfy ${fixgriddir}/fv3_grid_spec          fv3sar_grid_spec.nc
+    else
+      for ii in $list_iolayout
+      do
+        iii=$(printf %4.4i $ii)
+        cp_vrfy ${fixgriddir}/fv3_grid_spec.${iii}   fv3sar_grid_spec.nc.${iii}
+      done
+    fi
+  fi
 
 #
 #-----------------------------------------------------------------------
@@ -171,6 +220,18 @@ for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
 # link/copy observation files to working directory 
 #
 #-----------------------------------------------------------------------
+
+
+case $MACHINE in
+
+"WCOSS_C" | "WCOSS" | "WCOSS_DELL_P3")
+
+  obs_appendix=grib2.gz
+  ;;
+"JET" | "HERA")
+
+  obs_appendix=grib2
+esac
 
   NSSL=${OBSPATH_NSSLMOSIAC}
 
@@ -188,14 +249,14 @@ for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
     s=0
     while [[ $s -le 59 ]]; do
       ss=$(printf %2.2i ${s})
-      nsslfile=${NSSL}/*${mrms}_00.50_${YYYY}${MM}${DD}-${HH}${min}${ss}.grib2
+      nsslfile=${NSSL}/*${mrms}_00.50_${YYYY}${MM}${DD}-${HH}${min}${ss}.${obs_appendix}
       if [ -s $nsslfile ]; then
         echo 'Found '${nsslfile}
-        nsslfile1=*${mrms}_*_${YYYY}${MM}${DD}-${HH}${min}*.grib2
+        nsslfile1=*${mrms}_*_${YYYY}${MM}${DD}-${HH}${min}*.${obs_appendix}
         numgrib2=$(ls ${NSSL}/${nsslfile1} | wc -l)
         echo 'Number of GRIB-2 files: '${numgrib2}
         if [ ${numgrib2} -ge 10 ] && [ ! -e filelist_mrms ]; then
-          ln -sf ${NSSL}/${nsslfile1} . 
+          cp ${NSSL}/${nsslfile1} . 
           ls ${nsslfile1} > filelist_mrms 
           echo 'Creating links for ${YYYY}${MM}${DD}-${HH}${min}'
         fi
@@ -210,6 +271,13 @@ for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
   fi
 
   if [ -s filelist_mrms ]; then
+
+     if [ ${obs_appendix} == "grib2.gz" ]; then
+        gzip -d *.gz
+        mv filelist_mrms filelist_mrms_org
+        ls MergedReflectivityQC_*_${YYYY}${MM}${DD}-${HH}????.grib2 > filelist_mrms
+     fi
+
      numgrib2=$(more filelist_mrms | wc -l)
      print_info_msg "$VERBOSE" "Using radar data from: `head -1 filelist_mrms | cut -c10-15`"
      print_info_msg "$VERBOSE" "NSSL grib2 file levels = $numgrib2"
@@ -217,6 +285,7 @@ for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
      echo "WARNING: Not enough radar reflectivity files available for loop ${bigmin}."
      continue
   fi
+
 
 #-----------------------------------------------------------------------
 #
@@ -235,20 +304,24 @@ for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
 #                   = 1 NSSL 1 tile grib2 for single level
 #                   = 4 NSSL 4 tiles binary
 #                   = 8 NSSL 8 tiles netcdf
-#   bkversion     : grid type (background will be used in the analysis)
-#                   0 for ARW  (default)
-#                   1 for FV3LAM
+#   fv3_io_layout_y : subdomain of restart files
 #   analysis_time : process obs used for this analysis date (YYYYMMDDHH)
 #   dataPath      : path of the radar reflectivity mosaic files.
 #
 #-----------------------------------------------------------------------
 
-cat << EOF > mosaic.namelist
+if [ ${BKTYPE} -eq 1 ]; then
+  n_iolayouty=1
+else
+  n_iolayouty=$(($IO_LAYOUT_Y))
+fi
+
+cat << EOF > namelist.mosaic
    &setup
     tversion=1,
-    bkversion=1,
     analysis_time = ${YYYYMMDDHH},
     dataPath = './',
+    fv3_io_layout_y=${n_iolayouty},
    /
 EOF
 
@@ -279,7 +352,7 @@ EOF
 #
 #-----------------------------------------------------------------------
 #
-  $APRUN ./${exect} > stdout 2>&1 || print_err_msg "\
+  $APRUN ./${exect} > stdout 2>&1 || print_info_msg "\
   Call to executable to run radar refl process returned with nonzero exit code."
 
 done # done with the bigmin for-loop

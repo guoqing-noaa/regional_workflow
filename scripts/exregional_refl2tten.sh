@@ -55,7 +55,7 @@ with FV3 for the specified cycle.
 #
 #-----------------------------------------------------------------------
 #
-valid_args=( "CYCLE_DIR" "WORKDIR")
+valid_args=( "cycle_dir" "cycle_type" "mem_type" "workdir" "slash_ensmem_subdir" )
 process_args valid_args "$@"
 #
 #-----------------------------------------------------------------------
@@ -84,6 +84,12 @@ case $MACHINE in
   module load intel/16.1.150 impi/5.1.1.109 netcdf/4.3.0 
   module list
 
+  ulimit -s unlimited
+  ulimit -a
+  APRUN="mpirun -l -np 1"
+  ;;
+#
+"WCOSS_DELL_P3")
   ulimit -s unlimited
   ulimit -a
   APRUN="mpirun -l -np 1"
@@ -144,7 +150,6 @@ YYYYMMDD=${YYYYMMDDHH:0:8}
 print_info_msg "$VERBOSE" "
 Getting into working directory for radar tten process ..."
 
-workdir=${WORKDIR}
 cd_vrfy ${workdir}
 
 fixdir=$FIX_GSI
@@ -161,21 +166,48 @@ pwd
 #
 #-----------------------------------------------------------------------
 
+if [ ${cycle_type} == "spinup" ]; then
+  cycle_tag="_spinup"
+else
+  cycle_tag=""
+fi
+if [ ${mem_type} == "MEAN" ]; then
+    bkpath=${cycle_dir}/ensmean/fcst_fv3lam${cycle_tag}/INPUT
+else
+    bkpath=${cycle_dir}${slash_ensmem_subdir}/fcst_fv3lam${cycle_tag}/INPUT
+fi
+
+n_iolayouty=$(($IO_LAYOUT_Y-1))
+list_iolayout=$(seq 0 $n_iolayouty)
+
 cp_vrfy ${fixgriddir}/fv3_akbk                               fv3_akbk
 cp_vrfy ${fixgriddir}/fv3_grid_spec                          fv3_grid_spec
 
-bkpath=${CYCLE_DIR}/fcst_fv3lam/INPUT
-if [ -w ${bkpath}/gfs_data.tile7.halo0.nc ]; then  # cold start uses background from INPUT
+if [ -r "${bkpath}/coupler.res" ]; then # Use background from warm restart
+  if [ "${IO_LAYOUT_Y}" == "1" ]; then
+    ln_vrfy -s ${bkpath}/fv_core.res.tile1.nc         fv3_dynvars
+    ln_vrfy -s ${bkpath}/fv_tracer.res.tile1.nc       fv3_tracer
+    ln_vrfy -s ${bkpath}/sfc_data.nc                  fv3_sfcdata
+    ln_vrfy -s ${bkpath}/phy_data.nc                  fv3_phydata
+  else
+    for ii in ${list_iolayout}
+    do
+      iii=$(printf %4.4i $ii)
+      ln_vrfy -s ${bkpath}/fv_core.res.tile1.nc.${iii}         fv3_dynvars.${iii}
+      ln_vrfy -s ${bkpath}/fv_tracer.res.tile1.nc.${iii}       fv3_tracer.${iii}
+      ln_vrfy -s ${bkpath}/sfc_data.nc.${iii}                  fv3_sfcdata.${iii}
+      ln_vrfy -s ${bkpath}/phy_data.nc.${iii}                  fv3_phydata.${iii}
+      ln_vrfy -s ${fixgriddir}/fv3_grid_spec.${iii}            fv3_grid_spec.${iii}
+    done
+  fi
+  BKTYPE=0
+else                                   # Use background from cold start
   ln_vrfy -s ${bkpath}/sfc_data.tile7.halo0.nc      fv3_sfcdata
   ln_vrfy -s ${bkpath}/gfs_data.tile7.halo0.nc      fv3_dynvars
   ln_vrfy -s ${bkpath}/gfs_data.tile7.halo0.nc      fv3_tracer
   print_info_msg "$VERBOSE" "radar2tten is not ready for cold start"
+  BKTYPE=1
   exit 0
-else                                               # cycle uses background from RESTART
-  ln_vrfy -s ${bkpath}/fv_core.res.tile1.nc         fv3_dynvars
-  ln_vrfy -s ${bkpath}/fv_tracer.res.tile1.nc       fv3_tracer
-  ln_vrfy -s ${bkpath}/sfc_data.nc                  fv3_sfcdata
-  ln_vrfy -s ${bkpath}/phy_data.nc                  fv3_phydata
 fi
 
 #
@@ -184,17 +216,30 @@ fi
 # link/copy observation files to working directory
 #
 #-----------------------------------------------------------------------
-process_radarref_path=${CYCLE_DIR}/process_radarref
-process_lightning_path=${CYCLE_DIR}/process_lightning
+process_radarref_path=${cycle_dir}/process_radarref${cycle_tag}
+process_lightning_path=${cycle_dir}/process_lightning${cycle_tag}
 
 ss=0
 for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
-  bigmin=$( printf %2.2i $bigmin ) 
+  bigmin=$( printf %2.2i $bigmin )
   obs_file=${process_radarref_path}/${bigmin}/RefInGSI3D.dat
+  if [ "${IO_LAYOUT_Y}" == "1" ]; then
+    obs_file_check=${obs_file}
+  else
+    obs_file_check=${obs_file}.0000
+  fi
   ((ss+=1))
   num=$( printf %2.2i ${ss} )
-  if [ -r "${obs_file}" ]; then
-     cp_vrfy "${obs_file}" "RefInGSI3D.dat_${num}"
+  if [ -r "${obs_file_check}" ]; then
+     if [ "${IO_LAYOUT_Y}" == "1" ]; then
+       cp_vrfy "${obs_file}" "RefInGSI3D.dat_${num}"
+     else
+       for ii in ${list_iolayout}
+       do
+         iii=$(printf %4.4i $ii)
+         cp_vrfy "${obs_file}.${iii}" "RefInGSI3D.dat.${iii}_${num}"
+       done
+     fi
   else
      print_info_msg "$VERBOSE" "Warning: ${obs_file} does not exist!"
   fi
@@ -217,6 +262,32 @@ bufr_table=${fixdir}/prepobs_prep_RAP.bufrtable
 
 # Fixed fields
 cp_vrfy $bufr_table prepobs_prep.bufrtable
+
+
+#-----------------------------------------------------------------------
+#
+# Build namelist and run executable 
+#
+#   fv3_io_layout_y : subdomain of restart files
+#
+#-----------------------------------------------------------------------
+
+if [ ${BKTYPE} -eq 1 ]; then
+  n_iolayouty=1
+else
+  n_iolayouty=$(($IO_LAYOUT_Y))
+fi
+
+cat << EOF > namelist.ref2tten
+   &setup
+    dfi_radar_latent_heat_time_period=15.0,
+    convection_refl_threshold=28.0,
+    l_tten_for_convection_only=.true.,
+    l_convection_suppress=.false.,
+    fv3_io_layout_y=${n_iolayouty},
+    timelevel=${ss},
+   /
+EOF
 
 #
 #-----------------------------------------------------------------------

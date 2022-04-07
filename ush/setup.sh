@@ -353,6 +353,10 @@ optionList[2]=DO_RETRO
 optionList[3]=LBCS_ICS_ONLY
 optionList[4]=DO_NONVAR_CLDANAL
 optionList[5]=DO_REFL2TTEN
+optionList[6]=SAVE_CYCLE_LOG
+optionList[7]=DO_SOIL_ADJUST
+optionList[8]=DO_UPDATE_BC
+optionList[9]=DO_RADDA
 
 obs_number=${#optionList[@]}
 for (( i=0; i<${obs_number}; i++ ));
@@ -401,7 +405,7 @@ case $MACHINE in
     ;;
 
   "WCOSS_DELL_P3")
-    NCORES_PER_NODE=24
+    NCORES_PER_NODE=28
     SCHED="lsf"
     QUEUE_DEFAULT=${QUEUE_DEFAULT:-"dev"}
     QUEUE_HPSS=${QUEUE_HPSS:-"dev_transfer"}
@@ -903,7 +907,7 @@ fi
 #
 if [ ${#ADDNL_OUTPUT_GRIDS[@]} -ne 0 ]; then
   for grid in ${ADDNL_OUTPUT_GRIDS[@]} ; do
-    TILE_SETS="${TILE_SETS} full"
+    TILE_SETS="${TILE_SETS} ${grid}"
     TILE_LABELS="${TILE_LABELS} ${grid}"
   done
 fi
@@ -1499,7 +1503,8 @@ NDIGITS_ENSMEM_NAMES="0"
 ENSMEM_NAMES=("")
 FV3_NML_ENSMEM_FPS=("")
 if [ "${DO_ENSEMBLE}" = "TRUE" ]; then
-  NDIGITS_ENSMEM_NAMES="${#NUM_ENS_MEMBERS}"
+#  NDIGITS_ENSMEM_NAMES="${#NUM_ENS_MEMBERS}"
+  NDIGITS_ENSMEM_NAMES="4"
 # Strip away all leading zeros in NUM_ENS_MEMBERS by converting it to a 
 # decimal (leading zeros will cause bash to interpret the number as an 
 # octal).  Note that the variable definitions file will therefore contain

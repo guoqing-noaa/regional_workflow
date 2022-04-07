@@ -55,7 +55,7 @@ specified cycle.
 #
 #-----------------------------------------------------------------------
 #
-valid_args=( "cycle_dir" "cycle_type" "analworkdir" )
+valid_args=( "cycle_dir" "cycle_type" "gsi_type" "mem_type" "analworkdir" "observer_nwges_dir" "slash_ensmem_subdir" "satbias_dir" )
 process_args valid_args "$@"
 #
 #-----------------------------------------------------------------------
@@ -82,7 +82,7 @@ case $MACHINE in
   module list
   ulimit -s unlimited
   ulimit -a
-  APRUN="mpirun -l -np ${PE_MEMBER01}"
+  APRUN="mpirun -l"
   ;;
 #
 "WCOSS_DELL_P3")
@@ -91,9 +91,7 @@ case $MACHINE in
   module list
   ulimit -s unlimited
   ulimit -a
-  APRUN="mpirun"
-  export OMP_NUM_THREADS=4
-  export OMP_STACKSIZE=2048M
+  APRUN="mpirun -l"
   ;;
 #
 "THEIA")
@@ -101,7 +99,7 @@ case $MACHINE in
   ulimit -s unlimited
   ulimit -a
   np=${SLURM_NTASKS}
-  APRUN="mpirun -np ${np}"
+  APRUN="mpirun"
   ;;
 #
 "HERA")
@@ -134,7 +132,7 @@ case $MACHINE in
 
   ulimit -s unlimited
   ulimit -a
-  APRUN="srun -n ${PE_MEMBER01}"
+  APRUN="srun"
   ;;
 #
 esac
@@ -174,12 +172,20 @@ cd_vrfy ${analworkdir}
 
 fixgriddir=$FIX_GSI/${PREDEF_GRID_NAME}
 if [ ${cycle_type} == "spinup" ]; then
-  bkpath=${cycle_dir}/fcst_fv3lam_spinup/INPUT
+  if [ ${mem_type} == "MEAN" ]; then
+    bkpath=${cycle_dir}/ensmean/fcst_fv3lam_spinup/INPUT
+  else
+    bkpath=${cycle_dir}${slash_ensmem_subdir}/fcst_fv3lam_spinup/INPUT
+  fi
 else
-  bkpath=${cycle_dir}/fcst_fv3lam/INPUT
+  if [ ${mem_type} == "MEAN" ]; then
+    bkpath=${cycle_dir}/ensmean/fcst_fv3lam/INPUT
+  else
+    bkpath=${cycle_dir}${slash_ensmem_subdir}/fcst_fv3lam/INPUT
+  fi
 fi
 # decide background type
-if [ -r "${bkpath}/phy_data.nc" ]; then
+if [ -r "${bkpath}/coupler.res" ]; then
   BKTYPE=0              # warm start
 else
   BKTYPE=1              # cold start
@@ -200,7 +206,7 @@ print_info_msg "$VERBOSE" "background type is is $BKTYPE"
 stampcycle=$(date -d "${START_DATE}" +%s)
 minHourDiff=100
 loops="009"    # or 009s for GFSv15
-ens_type="nc"  # or nemsio for GFSv15
+ftype="nc"  # or nemsio for GFSv15
 foundens="false"
 cat "no ens found" >> filelist03
 
@@ -209,7 +215,7 @@ case $MACHINE in
 "WCOSS_C" | "WCOSS" | "WCOSS_DELL_P3")
 
   for loop in $loops; do
-    for timelist in $(ls ${ENKF_FCST}/enkfgdas.*/*/atmos/mem080/gdas*.atmf${loop}.${ens_type}); do
+    for timelist in $(ls ${ENKF_FCST}/enkfgdas.*/*/atmos/mem080/gdas*.atmf${loop}.${ftype}); do
       availtimeyyyymmdd=$(echo ${timelist} | cut -d'/' -f9 | cut -c 10-17)
       availtimehh=$(echo ${timelist} | cut -d'/' -f10)
       availtime=${availtimeyyyymmdd}${availtimehh}
@@ -242,7 +248,7 @@ case $MACHINE in
 "JET" | "HERA")
 
   for loop in $loops; do
-    for timelist in $(ls ${ENKF_FCST}/*.gdas.t*z.atmf${loop}.mem080.${ens_type}); do
+    for timelist in $(ls ${ENKF_FCST}/*.gdas.t*z.atmf${loop}.mem080.${ftype}); do
       availtimeyy=$(basename ${timelist} | cut -c 1-2)
       availtimeyyyy=20${availtimeyy}
       availtimejjj=$(basename ${timelist} | cut -c 3-5)
@@ -269,7 +275,7 @@ case $MACHINE in
   done
 
   if [ $foundens = "true" ]; then
-    ls ${ENKF_FCST}/${enkfcstname}.mem0??.${ens_type} >> filelist03
+    ls ${ENKF_FCST}/${enkfcstname}.mem0??.${ftype} >> filelist03
   fi
 
 esac
@@ -284,6 +290,9 @@ esac
 ifsatbufr=.false.
 ifsoilnudge=.false.
 ifhyb=.false.
+miter=2
+lread_obs_save=.false.
+lread_obs_skip=.false.
 
 # Determine if hybrid option is available
 memname='atmf009'
@@ -309,23 +318,36 @@ fi
 #           radar_tten converting code.
 #-----------------------------------------------------------------------
 
+n_iolayouty=$(($IO_LAYOUT_Y-1))
+list_iolayout=$(seq 0 $n_iolayouty)
+
 ln_vrfy -snf ${fixgriddir}/fv3_akbk                     fv3_akbk
 ln_vrfy -snf ${fixgriddir}/fv3_grid_spec                fv3_grid_spec
 
 if [ ${BKTYPE} -eq 1 ]; then  # cold start uses background from INPUT
-  ln_vrfy -snf ${bkpath}/gfs_data.tile7.halo0.nc        gfs_data.tile7.halo0.nc_b
-  ln_vrfy -snf ${fixgriddir}/phis.nc                    phis.nc
-  ncks -A -v  phis               phis.nc           gfs_data.tile7.halo0.nc_b
+  ln_vrfy -snf ${fixgriddir}/phis.nc               phis.nc
+  ncks -A -v  phis               phis.nc           ${bkpath}/gfs_data.tile7.halo0.nc 
 
-  ln_vrfy -snf ${bkpath}/sfc_data.tile7.halo0.nc        fv3_sfcdata
-  ln_vrfy -snf gfs_data.tile7.halo0.nc_b                fv3_dynvars
+  ln_vrfy -snf ${bkpath}/sfc_data.tile7.halo0.nc   fv3_sfcdata
+  ln_vrfy -snf ${bkpath}/gfs_data.tile7.halo0.nc   fv3_dynvars
   ln_vrfy -s fv3_dynvars                           fv3_tracer
 
   fv3lam_bg_type=1
 else                          # cycle uses background from restart
-  ln_vrfy  -snf ${bkpath}/fv_core.res.tile1.nc             fv3_dynvars
-  ln_vrfy  -snf ${bkpath}/fv_tracer.res.tile1.nc           fv3_tracer
-  ln_vrfy  -snf ${bkpath}/sfc_data.nc                      fv3_sfcdata
+  if [ "${IO_LAYOUT_Y}" == "1" ]; then
+    ln_vrfy  -snf ${bkpath}/fv_core.res.tile1.nc             fv3_dynvars
+    ln_vrfy  -snf ${bkpath}/fv_tracer.res.tile1.nc           fv3_tracer
+    ln_vrfy  -snf ${bkpath}/sfc_data.nc                      fv3_sfcdata
+  else
+    for ii in ${list_iolayout}
+    do
+      iii=`printf %4.4i $ii`
+      ln_vrfy  -snf ${bkpath}/fv_core.res.tile1.nc.${iii}     fv3_dynvars.${iii}
+      ln_vrfy  -snf ${bkpath}/fv_tracer.res.tile1.nc.${iii}   fv3_tracer.${iii}
+      ln_vrfy  -snf ${bkpath}/sfc_data.nc.${iii}              fv3_sfcdata.${iii}
+      ln_vrfy  -snf ${fixgriddir}/fv3_grid_spec.${iii}        fv3_grid_spec.${iii}
+    done
+  fi
   fv3lam_bg_type=0
 fi
 
@@ -373,11 +395,83 @@ esac
 obs_files_source[0]=${obspath_tmp}/${obsfileprefix}.t${HH}z.prepbufr.tm00
 obs_files_target[0]=prepbufr
 
-obs_files_source[1]=${obspath_tmp}/${obsfileprefix}.t${HH}z.satwnd.tm00.bufr_d
-obs_files_target[1]=satwndbufr
+obs_number=${#obs_files_source[@]}
+obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.satwnd.tm00.bufr_d
+obs_files_target[${obs_number}]=satwndbufr
 
-obs_files_source[2]=${obspath_tmp}/${obsfileprefix}.t${HH}z.nexrad.tm00.bufr_d
-obs_files_target[2]=l2rwbufr
+obs_number=${#obs_files_source[@]}
+obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.nexrad.tm00.bufr_d
+obs_files_target[${obs_number}]=l2rwbufr
+
+#
+#-----------------------------------------------------------------------
+#
+# including satellite radiance data
+#
+#-----------------------------------------------------------------------
+if [ ${DO_RADDA} == "TRUE" ]; then
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.1bamua.tm00.bufr_d
+  obs_files_target[${obs_number}]=amsuabufr
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.esamua.tm00.bufr_d
+  obs_files_target[${obs_number}]=amsuabufrears
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.1bmhs.tm00.bufr_d
+  obs_files_target[${obs_number}]=mhsbufr
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.esmhs.tm00.bufr_d
+  obs_files_target[${obs_number}]=mhsbufrears
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.atms.tm00.bufr_d
+  obs_files_target[${obs_number}]=atmsbufr
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.esatms.tm00.bufr_d
+  obs_files_target[${obs_number}]=atmsbufrears
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.atmsdb.tm00.bufr_d
+  obs_files_target[${obs_number}]=atmsbufr_db
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.crisf4.tm00.bufr_d
+  obs_files_target[${obs_number}]=crisfsbufr
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.crsfdb.tm00.bufr_d
+  obs_files_target[${obs_number}]=crisfsbufr_db
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.mtiasi.tm00.bufr_d
+  obs_files_target[${obs_number}]=iasibufr
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.esiasi.tm00.bufr_d
+  obs_files_target[${obs_number}]=iasibufrears
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.iasidb.tm00.bufr_d
+  obs_files_target[${obs_number}]=iasibufr_db
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.gsrcsr.tm00.bufr_d
+  obs_files_target[${obs_number}]=abibufr
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.ssmisu.tm00.bufr_d
+  obs_files_target[${obs_number}]=ssmisbufr
+
+  obs_number=${#obs_files_source[@]}
+  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.sevcsr.tm00.bufr_d
+  obs_files_target[${obs_number}]=sevcsr
+
+fi
 
 obs_number=${#obs_files_source[@]}
 for (( i=0; i<${obs_number}; i++ ));
@@ -391,6 +485,7 @@ do
   fi
 done
 
+#
 #-----------------------------------------------------------------------
 #
 # Create links to fix files in the FIXgsi directory.
@@ -508,27 +603,73 @@ for file in $(awk '{if($1!~"!"){print $1}}' ./satinfo | sort | uniq) ;do
    ln -s ${CRTMFIX}/${file}.TauCoeff.bin ./
 done
 
-## satellite bias correction
-#if [ ${FULLCYC} -eq 1 ]; then
-#   latest_bias=${DATAHOME_PBK}/satbias/satbias_out_latest
-#   latest_bias_pc=${DATAHOME_PBK}/satbias/satbias_pc.out_latest
-#   latest_radstat=${DATAHOME_PBK}/satbias/radstat.rap_latest
-#fi
-
-# cp $latest_bias ./satbias_in
-# cp $latest_bias_pc ./satbias_pc
-# cp $latest_radstat ./radstat.rap
-# listdiag=`tar xvf radstat.rap | cut -d' ' -f2 | grep _ges`
-# for type in $listdiag; do
-#       diag_file=`echo $type | cut -d',' -f1`
-#       fname=`echo $diag_file | cut -d'.' -f1`
-#       date=`echo $diag_file | cut -d'.' -f2`
-#       gunzip $diag_file
-#       fnameanl=$(echo $fname|sed 's/_ges//g')
-#       mv $fname.$date $fnameanl
-# done
+#-----------------------------------------------------------------------
 #
-#mv radstat.rap  radstat.rap.for_this_cycle
+# cycling radiance bias corretion files
+#
+#-----------------------------------------------------------------------
+if [ ${DO_RADDA} == "TRUE" ]; then
+  if [ ${cycle_type} == "spinup" ]; then
+    echo "spin up cycle"
+    spinup_or_prod_rrfs=spinup
+    for cyc_start in "${CYCL_HRS_SPINSTART[@]}"; do
+      if [ ${HH} -eq ${cyc_start} ]; then
+        spinup_or_prod_rrfs=prod 
+      fi
+    done
+  else 
+    echo " product cycle"
+    spinup_or_prod_rrfs=prod
+    for cyc_start in "${CYCL_HRS_PRODSTART[@]}"; do
+      if [ ${HH} -eq ${cyc_start} ]; then
+        spinup_or_prod_rrfs=spinup      
+      fi 
+    done
+  fi
+
+  satcounter=1
+  maxcounter=240
+  while [ $satcounter -lt $maxcounter ]; do
+    SAT_TIME=`date +"%Y%m%d%H" -d "${START_DATE}  ${satcounter} hours ago"`
+    echo $SAT_TIME
+    if [ -r ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_satbias ]; then
+      echo " using satellite bias files from ${SAT_TIME}"
+
+      cp_vrfy ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_satbias ./satbias_in
+      cp_vrfy ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_satbias_pc ./satbias_pc
+      cp_vrfy ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${SAT_TIME}_radstat ./radstat.rrfs
+
+      break
+    fi
+    satcounter=` expr $satcounter + 1 `
+  done
+
+  ## if satbias files (go back to previous 10 dyas) are not available from ${satbias_dir}, use satbias files from the ${FIX_GSI} 
+  if [ $satcounter -eq $maxcounter ]; then
+    if [ -r ${FIX_GSI}/rrfs.starting_satbias ]; then
+      echo "using satllite satbias_in files from ${FIX_GSI}"     
+      cp_vrfy ${FIX_GSI}/rrfs.starting_satbias ./satbias_in
+    fi
+    if [ -r ${FIX_GSI}/rrfs.starting_satbias_pc ]; then
+      echo "using satllite satbias_pc files from ${FIX_GSI}"     
+      cp_vrfy ${FIX_GSI}/rrfs.starting_satbias_pc ./satbias_pc
+    fi
+    if [ -r ${FIX_GSI}/rrfs.starting_radstat ]; then
+      echo "using satllite radstat files from ${FIX_GSI}"     
+      cp_vrfy ${FIX_GSI}/rrfs.starting_radstat ./radstat.rrfs
+    fi
+  fi
+
+  listdiag=`tar xvf radstat.rrfs | cut -d' ' -f2 | grep _ges`
+  for type in $listdiag; do
+    diag_file=`echo $type | cut -d',' -f1`
+    fname=`echo $diag_file | cut -d'.' -f1`
+    date=`echo $diag_file | cut -d'.' -f2`
+    gunzip $diag_file
+    fnameanl=$(echo $fname|sed 's/_ges//g')
+    mv $fname.$date $fnameanl
+  done
+fi
 
 #-----------------------------------------------------------------------
 #
@@ -538,6 +679,24 @@ done
 #
 #-----------------------------------------------------------------------
 # 
+if [ ${gsi_type} == "OBSERVER" ]; then
+  miter=0
+  ifhyb=.false.
+  if [ ${mem_type} == "MEAN" ]; then
+    lread_obs_save=.true.
+    lread_obs_skip=.false.
+  else
+    lread_obs_save=.false.
+    lread_obs_skip=.true.
+    ln -s ../../ensmean/observer_gsi/obs_input.* .
+  fi
+fi
+if [ ${BKTYPE} -eq 1 ]; then
+  n_iolayouty=1
+else
+  n_iolayouty=$(($IO_LAYOUT_Y))
+fi
+
 . ${FIX_GSI}/gsiparm.anl.sh
 cat << EOF > gsiparm.anl
 $gsi_namelist
@@ -582,8 +741,7 @@ fi
 # comment out for testing
 $APRUN ./gsi.x < gsiparm.anl > stdout 2>&1 || print_err_msg_exit "\
 Call to executable to run GSI returned with nonzero exit code."
-
-
+#
 #-----------------------------------------------------------------------
 #
 # Copy analysis results to INPUT for model forecast.
@@ -627,7 +785,7 @@ esac
 
 #  Collect diagnostic files for obs types (groups) below
 if [ $binary_diag = ".true." ]; then
-   listall="conv hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g12 sndrd2_g12 sndrd3_g12 sndrd4_g12 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 pcp_ssmi_dmsp pcp_tmi_trmm sbuv2_n16 sbuv2_n17 sbuv2_n18 omi_aura ssmi_f13 ssmi_f14 ssmi_f15 hirs4_n18 hirs4_metop-a amsua_n18 amsua_metop-a mhs_n18 mhs_metop-a amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_las_f16 ssmis_uas_f16 ssmis_img_f16 ssmis_env_f16 iasi_metop-a"
+   listall="hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g15 sndrd2_g15 sndrd3_g15 sndrd4_g15 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsua_n18 amsua_n19 amsua_metop-a amsua_metop-b amsua_metop-c amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 pcp_ssmi_dmsp pcp_tmi_trmm conv sbuv2_n16 sbuv2_n17 sbuv2_n18 omi_aura ssmi_f13 ssmi_f14 ssmi_f15 hirs4_n18 hirs4_metop-a mhs_n18 mhs_n19 mhs_metop-a mhs_metop-b mhs_metop-c amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_las_f16 ssmis_uas_f16 ssmis_img_f16 ssmis_env_f16 iasi_metop-a iasi_metop-b iasi_metop-c seviri_m08 seviri_m09 seviri_m10 seviri_m11 cris_npp atms_npp ssmis_f17 cris-fsr_npp cris-fsr_n20 atms_n20 abi_g16 abi_g17"
    for type in $listall; do
       count=$(ls pe*.${type}_${loop} | wc -l)
       if [[ $count -gt 0 ]]; then
@@ -662,6 +820,113 @@ fi
 
 done
 
+if [ ${gsi_type} == "OBSERVER" ]; then
+  cp_vrfy *diag* ${observer_nwges_dir}/.
+fi
+
+#
+#-----------------------------------------------------------------------
+#
+# cycling radiance bias corretion files
+#
+#-----------------------------------------------------------------------
+
+if [ ${DO_RADDA} == "TRUE" ]; then
+  if [ ${cycle_type} == "spinup" ]; then
+    spinup_or_prod_rrfs=spinup
+  else
+    spinup_or_prod_rrfs=prod
+  fi
+  tar -cvzf rrfs.${spinup_or_prod_rrfs}.${YYYYMMDDHH}_radstat *diag*.${YYYYMMDDHH}
+  cp_vrfy ./satbias_out ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${YYYYMMDDHH}_satbias
+  cp_vrfy ./satbias_pc.out ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${YYYYMMDDHH}_satbias_pc
+  cp_vrfy ./rrfs.${spinup_or_prod_rrfs}.${YYYYMMDDHH}_radstat  ${satbias_dir}/rrfs.${spinup_or_prod_rrfs}.${YYYYMMDDHH}_radstat
+fi
+
+#
+#-----------------------------------------------------------------------
+#
+# adjust soil T/Q based on analysis increment
+#
+#-----------------------------------------------------------------------
+#
+if [ ${BKTYPE} -eq 0 ] && [ "${DO_SOIL_ADJUST}" = "TRUE" ]; then  # warm start
+  cd ${bkpath}
+  if [ "${IO_LAYOUT_Y}" == "1" ]; then
+    ln_vrfy -snf ${fixgriddir}/fv3_grid_spec                fv3_grid_spec
+  else
+    for ii in ${list_iolayout}
+    do
+      iii=`printf %4.4i $ii`
+      ln_vrfy  -snf ${fixgriddir}/fv3_grid_spec.${iii}        fv3_grid_spec.${iii}
+    done
+  fi
+
+cat << EOF > namelist.soiltq
+ &setup
+  fv3_io_layout_y=${IO_LAYOUT_Y},
+  iyear=${YYYY},
+  imonth=${MM},
+  iday=${DD},
+  ihour=${HH},
+  iminute=0,
+ /
+EOF
+
+  adjustsoil_exec="${EXECDIR}/adjust_soiltq.exe"
+
+  if [ -f $adjustsoil_exec ]; then
+    print_info_msg "$VERBOSE" "
+Copying the adjust soil executable to the run directory..."
+    cp_vrfy ${adjustsoil_exec} adjust_soiltq.exe
+  else
+    print_err_msg_exit "\
+The adjust_soiltq.exe specified in ${EXECDIR} does not exist.
+Build adjust_soiltq.exe and rerun."
+  fi
+
+  $APRUN ./adjust_soiltq.exe || print_err_msg_exit "\
+  Call to executable to run adjust soil returned with nonzero exit code."
+
+fi
+
+#
+#-----------------------------------------------------------------------
+#
+# update boundary condition absed on analysis results.
+# This will generate a new boundary file at 0-hour
+#
+#-----------------------------------------------------------------------
+#
+if [ ${BKTYPE} -eq 0 ] && [ "${DO_UPDATE_BC}" = "TRUE" ]; then  # warm start
+  cd ${bkpath}
+
+cat << EOF > namelist.updatebc
+ &setup
+  fv3_io_layout_y=${IO_LAYOUT_Y},
+  bdy_update_type=1,
+  grid_type_fv3_regional=2,
+ /
+EOF
+
+  update_bc_exec="${EXECDIR}/update_bc.exe"
+  cp gfs_bndy.tile7.000.nc gfs_bndy.tile7.000.nc_before_update
+
+  if [ -f $update_bc_exec ]; then
+    print_info_msg "$VERBOSE" "
+Copying the update bc executable to the run directory..."
+    cp_vrfy ${update_bc_exec} update_bc.exe 
+  else
+    print_err_msg_exit "\
+The update_bc.exe specified in ${EXECDIR} does not exist.
+Build update_bc.exe and rerun."
+  fi
+
+  $APRUN ./update_bc.exe || print_err_msg_exit "\
+  Call to executable to run update bc returned with nonzero exit code."
+
+fi
+
 #
 #-----------------------------------------------------------------------
 #
@@ -676,6 +941,7 @@ ANALYSIS GSI completed successfully!!!
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+#
 #
 #-----------------------------------------------------------------------
 #

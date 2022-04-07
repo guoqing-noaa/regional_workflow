@@ -47,7 +47,6 @@ ushdir="${scrfunc_dir}"
 #
 . $ushdir/source_util_funcs.sh
 . $ushdir/set_FV3nml_sfc_climo_filenames.sh
-. $ushdir/set_FV3nml_stoch_params.sh
 #
 #-----------------------------------------------------------------------
 #
@@ -117,6 +116,16 @@ fi
 { save_shell_opts; set -u +x; } > /dev/null 2>&1
 #
 #-----------------------------------------------------------------------
+# check whether the .agent link is initialized
+# if not, run Init.sh (otherwise, the workflow generation will fail)
+#-----------------------------------------------------------------------
+#
+if [[ ! -L ${ushdir}/../fix/.agent || ! -e ${ushdir}/../fix/.agent ]] \
+  && [ -e ${ushdir}/../Init.sh ]; then
+    ${ushdir}/../Init.sh
+fi
+#
+#-----------------------------------------------------------------------
 #
 # Source the file that defines and then calls the setup function.  The
 # setup function in turn first sources the default configuration file
@@ -128,16 +137,6 @@ fi
 #-----------------------------------------------------------------------
 #
 . $ushdir/setup.sh
-#
-#-----------------------------------------------------------------------
-# check whether the .agent link for fix/ is initialized
-# if not, run Init.sh (otherwise, the workflow generation will fail)
-#-----------------------------------------------------------------------
-#
-if [[ ! -L ${HOMErrfs}/fix/.agent || ! -e ${HOMErrfs}/fix/.agent ]] \
-  && [ -e ${HOMErrfs}/Init.sh ]; then
-    ${HOMErrfs}/Init.sh
-fi
 #
 #-----------------------------------------------------------------------
 #
@@ -204,9 +203,12 @@ settings="\
   'run_post_tn': ${RUN_POST_TN}
   'run_wgrib2_tn': ${RUN_WGRIB2_TN}
   'anal_gsi': ${ANAL_GSI_TN}
+  'observer_gsi_ensmean': ${OBSERVER_GSI_ENSMEAN_TN}
+  'observer_gsi': ${OBSERVER_GSI_TN}
   'prep_start': ${PREP_START_TN}
   'prep_cyc_spinup': ${PREP_CYC_SPINUP_TN}
   'prep_cyc_prod': ${PREP_CYC_PROD_TN}
+  'prep_cyc_ensmean': ${PREP_CYC_ENSMEAN_TN}
   'prep_cyc': ${PREP_CYC_TN}
   'process_radarref': ${PROCESS_RADAR_REF_TN}
   'process_lightning': ${PROCESS_LIGHTNING_TN}
@@ -227,6 +229,7 @@ settings="\
   'nnodes_run_prepstart': ${NNODES_RUN_PREPSTART}
   'nnodes_run_fcst': ${NNODES_RUN_FCST}
   'nnodes_run_anal': ${NNODES_RUN_ANAL}
+  'nnodes_run_enkf': ${NNODES_RUN_ENKF}
   'nnodes_run_post': ${NNODES_RUN_POST}
   'nnodes_run_wgrib2': ${NNODES_RUN_WGRIB2}
   'nnodes_proc_radar': ${NNODES_PROC_RADAR}
@@ -241,7 +244,10 @@ settings="\
   'ncores_run_fcst': ${PE_MEMBER01}
   'native_run_fcst': ${NATIVE_RUN_FCST}
   'ncores_run_anal': ${NCORES_RUN_ANAL}
+  'ncores_run_observer': ${NCORES_RUN_OBSERVER}
   'native_run_anal': ${NATIVE_RUN_ANAL}
+  'ncores_run_enkf': ${NCORES_RUN_ENKF}
+  'native_run_enkf': ${NATIVE_RUN_ENKF}
 #
 # Number of logical processes per node for each task.  If running without
 # threading, this is equal to the number of MPI processes per node.
@@ -256,6 +262,7 @@ settings="\
   'ppn_run_prepstart': ${PPN_RUN_PREPSTART}
   'ppn_run_fcst': ${PPN_RUN_FCST}
   'ppn_run_anal': ${PPN_RUN_ANAL}
+  'ppn_run_enkf': ${PPN_RUN_ENKF}
   'ppn_run_post': ${PPN_RUN_POST}
   'ppn_run_wgrib2': ${PPN_RUN_WGRIB2}
   'ppn_proc_radar': ${PPN_PROC_RADAR}
@@ -275,8 +282,10 @@ settings="\
   'wtime_make_ics': ${WTIME_MAKE_ICS}
   'wtime_make_lbcs': ${WTIME_MAKE_LBCS}
   'wtime_run_prepstart': ${WTIME_RUN_PREPSTART}
+  'wtime_run_prepstart_ensmean': ${WTIME_RUN_PREPSTART_ENSMEAN}
   'wtime_run_fcst': ${WTIME_RUN_FCST}
   'wtime_run_anal': ${WTIME_RUN_ANAL}
+  'wtime_run_enkf': ${WTIME_RUN_ENKF}
   'wtime_run_post': ${WTIME_RUN_POST}
   'wtime_run_wgrib2': ${WTIME_RUN_WGRIB2}
   'wtime_proc_radar': ${WTIME_PROC_RADAR}
@@ -287,8 +296,10 @@ settings="\
 #
 # Maximum memory for each task.
 #
+  'memo_run_processbufr': ${MEMO_RUN_PROCESSBUFR}
   'memo_run_ref2tten': ${MEMO_RUN_REF2TTEN}
   'memo_run_nonvarcldanl': ${MEMO_RUN_NONVARCLDANL}
+  'memo_run_prepstart': ${MEMO_RUN_PREPSTART}
   'memo_run_wgrib2': ${MEMO_RUN_WGRIB2}
 #
 # Maximum number of tries for each task.
@@ -303,6 +314,7 @@ settings="\
   'maxtries_run_prepstart': ${MAXTRIES_RUN_PREPSTART}
   'maxtries_run_fcst': ${MAXTRIES_RUN_FCST}
   'maxtries_anal_gsi': ${MAXTRIES_ANAL_GSI}
+  'maxtries_anal_enkf': ${MAXTRIES_ANAL_ENKF}
   'maxtries_run_post': ${MAXTRIES_RUN_POST}
   'maxtries_run_wgrib2': ${MAXTRIES_RUN_WGRIB2}
   'maxtries_process_radarref': ${MAXTRIES_PROCESS_RADARREF}
@@ -330,6 +342,7 @@ settings="\
   'logdir': $LOGDIR
   'cycle_basedir': ${CYCLE_BASEDIR}
   'nwges_basedir': ${NWGES_BASEDIR}
+  'obspath': ${OBSPATH}
   'global_var_defns_fp': ${GLOBAL_VAR_DEFNS_FP}
   'load_modules_run_task_fp': ${LOAD_MODULES_RUN_TASK_FP}
 #
@@ -343,6 +356,8 @@ settings="\
   'extrn_mdl_lbcs_offset_hrs': ${EXTRN_MDL_LBCS_OFFSET_HRS}
   'extrn_mdl_lbcs_search_offset_hrs': ${EXTRN_MDL_LBCS_SEARCH_OFFSET_HRS}
   'bc_update_interval': ${LBC_SPEC_INTVL_HRS}
+  'fv3gfs_file_fmt_ics': ${FV3GFS_FILE_FMT_ICS}
+  'fv3gfs_file_fmt_lbcs': ${FV3GFS_FILE_FMT_LBCS}
 #
 # Parameters that determine the set of cycles to run.
 #
@@ -382,6 +397,9 @@ settings="\
   'ensmem_indx_name': ${ensmem_indx_name}
   'uscore_ensmem_name': ${uscore_ensmem_name}
   'slash_ensmem_subdir': ${slash_ensmem_subdir}
+  'do_enscontrol': ${DO_ENSCONTROL}
+  'do_gsiobserver': ${DO_GSIOBSERVER}
+  'do_enkfupdate': ${DO_ENKFUPDATE}
 #
 # data assimilation related parameters.
 #
@@ -394,8 +412,8 @@ settings="\
 #
 # graphics related parameters
 #
-  'tilelabels': ${TILE_LABELS}
-  'tilesets': ${TILE_SETS}
+  'tilelabels': \"${TILE_LABELS}\"
+  'tilesets': \"${TILE_SETS}\"
 #
 #  retrospective experiments
 #
@@ -680,7 +698,8 @@ fi
 #
 lsoil="4"
 if [ "${EXTRN_MDL_NAME_ICS}" = "HRRR" -o \
-     "${EXTRN_MDL_NAME_ICS}" = "RAP" ] && \
+     "${EXTRN_MDL_NAME_ICS}" = "RAP" -o \
+     "${EXTRN_MDL_NAME_ICS}" = "HRRRDAS" ] && \
    [ "${SDF_USES_RUC_LSM}" = "TRUE" ]; then
   lsoil="9"
 fi
@@ -724,6 +743,7 @@ settings="\
     'stretch_fac': ${STRETCH_FAC},
     'npx': $npx,
     'npy': $npy,
+    'io_layout': [${IO_LAYOUT_X}, ${IO_LAYOUT_Y}],
     'layout': [${LAYOUT_X}, ${LAYOUT_Y}],
     'bc_update_interval': ${LBC_SPEC_INTVL_HRS},
   }
@@ -733,6 +753,7 @@ settings="\
     'do_shum': ${DO_SHUM},
     'do_sppt': ${DO_SPPT},
     'do_skeb': ${DO_SKEB},
+    'print_diff_pgr': ${PRINT_DIFF_PGR},
   }
 'nam_stochy': {
     'shum': ${SHUM_MAG},
@@ -861,16 +882,9 @@ if [ "${RUN_TASK_MAKE_GRID}" = "FALSE" ]; then
 Call to function to set surface climatology file names in the FV3 namelist
 file failed."
 
-  if [ "${DO_ENSEMBLE}" = TRUE ]; then
-    set_FV3nml_stoch_params || print_err_msg_exit "\
-Call to function to set stochastic parameters in the FV3 namelist files
-for the various ensemble members failed."
-  fi
-
 fi
 
 if [ "${DO_SURFACE_CYCLE}" = "TRUE" ]; then
-  nstf_name="2,0,0,0,0"
   if [ "${SDF_USES_RUC_LSM}" = "TRUE" ]; then
     lsoil="9"
   fi
@@ -878,8 +892,6 @@ if [ "${DO_SURFACE_CYCLE}" = "TRUE" ]; then
  settings="\
  'gfs_physics_nml': {
      'lsoil': ${lsoil:-null},
-     'nst_anl' : false,
-     'nstf_name'  : [${nstf_name[@]}],
    }"
 # commnet out for using current develop branch that has no radar tten code yet.
 # 'gfs_physics_nml': {
@@ -902,10 +914,13 @@ if [ "${DO_SURFACE_CYCLE}" = "TRUE" ]; then
  $settings"
 fi
 
-if [ "${DO_DACYCLE}" = "TRUE" ]; then
-  nstf_name="2,0,0,0,0"
+if [[ "${DO_DACYCLE}" = "TRUE" || "${DO_ENKFUPDATE}" = "TRUE" ]]; then
   if [ "${SDF_USES_RUC_LSM}" = "TRUE" ]; then
     lsoil="9"
+  fi
+  lupdatebc="false"
+  if [ "${DO_UPDATE_BC}" = "TRUE" ]; then
+    lupdatebc="false" # not ready for setting this to true yet
   fi
 
 # need to generate a namelist for da cycle
@@ -916,12 +931,11 @@ if [ "${DO_DACYCLE}" = "TRUE" ]; then
      'na_init'    : 0,
      'nggps_ic'   : false,
      'mountain'  : true,
+     'regional_bcs_from_gsi': ${lupdatebc},
      'warm_start' : true,
    }
  'gfs_physics_nml': {
      'lsoil': ${lsoil:-null},
-     'nst_anl' : false,
-     'nstf_name'  : [${nstf_name[@]}],
    }"
 # commnet out for using current develop branch that has no radar tten code yet.
 # 'gfs_physics_nml': {

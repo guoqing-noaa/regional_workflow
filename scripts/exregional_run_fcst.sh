@@ -9,6 +9,7 @@
 #
 . ${GLOBAL_VAR_DEFNS_FP}
 . $USHDIR/source_util_funcs.sh
+. $USHDIR/set_FV3nml_stoch_params.sh
 #
 #-----------------------------------------------------------------------
 #
@@ -114,7 +115,7 @@ case $MACHINE in
     ulimit -s unlimited
     ulimit -a
     APRUN="srun"
-    OMP_NUM_THREADS=4
+    OMP_NUM_THREADS=2
     ;;
 
   "ORION")
@@ -167,7 +168,7 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-run_dir="${cycle_dir}${slash_ensmem_subdir}"
+run_dir="${cycle_dir}"
 #
 #-----------------------------------------------------------------------
 #
@@ -343,7 +344,7 @@ of the current run directory (run_dir), where
 ..."
 
 BKTYPE=1    # cold start using INPUT
-if [ -r ${run_dir}/INPUT/fv_tracer.res.tile1.nc ]; then
+if [ -r ${run_dir}/INPUT/coupler.res ] ; then
   BKTYPE=0  # cycling using RESTART
 fi
 print_info_msg "$VERBOSE" "
@@ -355,18 +356,35 @@ cd_vrfy ${run_dir}/INPUT
 
 relative_or_null=""
 
+n_iolayouty=$(($IO_LAYOUT_Y-1))
+list_iolayout=$(seq 0 $n_iolayouty)
+
 if [ ${BKTYPE} -eq 1 ]; then
   target="gfs_data.tile${TILE_RGNL}.halo${NH0}.nc"
 else
   target="fv_core.res.tile1.nc"
 fi
 symlink="gfs_data.nc"
-if [ -f "${target}" ]; then
-  ln_vrfy -sf ${relative_or_null} $target $symlink
+if [ -f "${target}.0000" ]; then
+  for ii in ${list_iolayout}
+  do
+    iii=$(printf %4.4i $ii)
+    if [ -f "${target}.${iii}" ]; then
+      ln_vrfy -sf ${relative_or_null} $target.${iii} $symlink.${iii}
+    else
+      print_err_msg_exit "\
+      Cannot create symlink because target does not exist:
+      target = \"$target.$iii\""
+    fi
+  done
 else
-  print_err_msg_exit "\
-  Cannot create symlink because target does not exist:
-  target = \"$target\""
+  if [ -f "${target}" ]; then
+    ln_vrfy -sf ${relative_or_null} $target $symlink
+  else
+    print_err_msg_exit "\
+    Cannot create symlink because target does not exist:
+    target = \"$target\""
+  fi
 fi
 
 if [ ${BKTYPE} -eq 1 ]; then
@@ -380,7 +398,7 @@ if [ ${BKTYPE} -eq 1 ]; then
     target = \"$target\""
   fi
 else
-  if [ -f "sfc_data.nc" ]; then
+  if [ -f "sfc_data.nc.0000" ] || [ -f "sfc_data.nc" ]; then
     print_info_msg "$VERBOSE" "
     sfc_data.nc is available at INPUT directory"
   else
@@ -468,21 +486,26 @@ ln_vrfy -sf ${relative_or_null} ${FIELD_TABLE_FP} ${run_dir}
 ln_vrfy -sf ${relative_or_null} ${NEMS_CONFIG_FP} ${run_dir}
 ln_vrfy -sf ${relative_or_null} ${NEMS_YAML_FP} ${run_dir}
 
-if [ "${DO_ENSEMBLE}" = TRUE ]; then
-  ln_vrfy -sf ${relative_or_null} "${FV3_NML_ENSMEM_FPS[$(( 10#${ensmem_indx}-1 ))]}" ${run_dir}/${FV3_NML_FN}
+if [ ${BKTYPE} -eq 0 ]; then
+  # cycling, using namelist for cycling forecast
+  cp_vrfy ${FV3_NML_RESTART_FP} ${run_dir}/input.nml
 else
-  if [ ${BKTYPE} -eq 0 ]; then
-    # cycling, using namelist for cycling forecast
-    cp_vrfy ${FV3_NML_RESTART_FP} ${run_dir}/input.nml
+  if [ -f "INPUT/cycle_surface.done" ]; then
+  # namelist for cold start with surface cycle
+    cp_vrfy ${FV3_NML_CYCSFC_FP} ${run_dir}/input.nml
   else
-    if [ -f "INPUT/cycle_surface.done" ]; then
-    # namelist for cold start with surface cycle
-      cp_vrfy ${FV3_NML_CYCSFC_FP} ${run_dir}/input.nml
-    else
-    # cold start, using namelist for cold start
-      cp_vrfy ${FV3_NML_FP} ${run_dir}/input.nml
-    fi
+  # cold start, using namelist for cold start
+    cp_vrfy ${FV3_NML_FP} ${run_dir}/input.nml
   fi
+fi
+
+if [ "${DO_ENSEMBLE}" = TRUE ]; then
+  cp ${run_dir}/input.nml ${run_dir}/input.nml_base
+  set_FV3nml_stoch_params cdate="$cdate" || print_err_msg_exit "\
+ Call to function to create the ensemble-based namelist for the current 
+ cycle's (cdate) run directory (run_dir) failed: 
+   cdate = \"${cdate}\"
+   run_dir = \"${run_dir}\""
 fi
 #
 #-----------------------------------------------------------------------
@@ -519,31 +542,8 @@ cycle's (cdate) run directory (run_dir) failed:
 #
 #-----------------------------------------------------------------------
 #
-# If running ensemble forecasts, create a link to the cycle-specific
-# diagnostic tables file in the cycle directory.  Note that this link
-# should not be made if not running ensemble forecasts because in that
-# case, the cycle directory is the run directory (and we would be creating
-# a symlink with the name of a file that already exists).
-#
-#-----------------------------------------------------------------------
-#
-if [ "${DO_ENSEMBLE}" = "TRUE" ]; then
-  if [ "${MACHINE}" = "WCOSS_CRAY" ]; then
-    relative_or_null=""
-  else
-    relative_or_null="--relative"
-  fi
-  diag_table_fp="${cycle_dir}/${DIAG_TABLE_FN}"
-  ln_vrfy -sf ${relative_or_null} ${diag_table_fp} ${run_dir}
-fi
-#
-#-----------------------------------------------------------------------
-#
-# Set and export variables.
-#
-#-----------------------------------------------------------------------
-#
 export KMP_AFFINITY=${KMP_AFFINITY:-scatter}
+export KMP_AFFINITY=scatter
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1} #Needs to be 1 for dynamic build of CCPP with GFDL fast physics, was 2 before.
 export OMP_STACKSIZE=${OMP_STACKSIZE:-1024m}
 
@@ -580,7 +580,19 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-$APRUN ${FV3_EXEC_FP} || print_err_msg_exit "\
+# Copy the executable to the run directory.
+if [ -f ${FV3_EXEC_FP} ]; then
+   print_info_msg "$VERBOSE" "
+  Copying the fv3lam  executable to the run directory..."
+  cp_vrfy ${FV3_EXEC_FP} ${run_dir}/ufs_model
+else
+  print_err_msg_exit "\
+ The GSI executable specified in FV3_EXEC_FP does not exist:
+   FV3_EXEC_FP = \"$FV3_EXEC_FP\"
+ Build FV3LAM and rerun."
+fi
+
+$APRUN ${run_dir}/ufs_model || print_err_msg_exit "\
 Call to executable to run FV3-LAM forecast returned with nonzero exit
 code."
 #

@@ -1,10 +1,11 @@
 gsi_namelist="
  &SETUP
-   miter=2,niter(1)=50,niter(2)=50,
+   miter=${miter},niter(1)=50,niter(2)=50,
    write_diag(1)=.true.,write_diag(2)=${write_diag_2},write_diag(3)=.true.,
    qoption=2,print_obs_para=.true.,diag_radardbz=${diag_radardbz},
    gencode=78,factqmin=0.0,factqmax=0.0,
    iguess=-1,
+   lread_obs_save=${lread_obs_save},lread_obs_skip=${lread_obs_skip},
    oneobtest=.false.,retrieval=.false.,
    nhr_assimilation=3,l_foto=.false.,
    use_pbl=.false.,use_prepb_satwnd=$ifsatbufr,
@@ -17,6 +18,7 @@ gsi_namelist="
  /     
  &GRIDOPTS
    fv3_regional=.true.,grid_ratio_fv3_regional=${grid_ratio_fv3},nvege_type=20,
+   fv3_io_layout_y=${n_iolayouty},
  /
  &BKGERR
    vs=${bkgerr_vs},
@@ -47,7 +49,7 @@ OBS_INPUT::
    prepbufr       uv          null      uv                   1.0     0     0
    prepbufr       spd         null      spd                  1.0     0     0
    prepbufr       dw          null      dw                   1.0     0     0
-!  l2rwbufr       rw          null      l2rw                 1.0     0     0
+   l2rwbufr       rw          null      l2rw                 1.0     0     0
    prepbufr       sst         null      sst                  1.0     0     0
    gpsrobufr      gps_ref     null      gps                  1.0     0     0
    ssmirrbufr     pcp_ssmi    dmsp      pcp_ssmi             1.0    -1     0
@@ -174,8 +176,8 @@ OBS_INPUT::
    build_cloud_frac_p=0.50,
    clear_cloud_frac_p=0.10,
    iclean_hydro_withRef_allcol=1,
-   i_use_2mQ4B=0,
-   i_use_2mT4B=0,
+   i_use_2mQ4B=2,
+   i_use_2mT4B=1,
    i_gsdcldanal_type=0,
    i_gsdsfc_uselist=1,
    i_lightpcp=1,

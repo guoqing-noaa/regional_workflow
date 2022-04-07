@@ -268,10 +268,18 @@ EXPT_SUBDIR=""
 #    LIGHTNING_ROOT: location of lightning observations
 #    ENKF_FCSTL: location of global ensemble forecast
 #    FFG_DIR: location of flash flood guidance for QPF comparison
-
+#
 # Setup default locations for global SST and update time:
 #   SST_ROOT: locations of global SST
 #   SST_update_hour: cycle time for updating SST 
+#
+# Setup default locations for GVF and update time:
+#   GVF_ROOT: locations of GVF observations
+#   GVF_update_hour: cycle time for updating GVF 
+#
+# Setup default locations for IMS snow/ice and update time:
+#   IMSSNOW_ROOT: locations of IMS snow/ice observations
+#   SNOWICE_update_hour: cycle time for updating snow/ice 
 #-----------------------------------------------------------------------
 #
 COMINgfs="/base/path/of/directory/containing/gfs/input/files"
@@ -297,6 +305,10 @@ ENKF_FCST="/lfs4/BMC/public/data/grids/enkf/atm"
 FFG_DIR="/public/data/grids/ncep/ffg/grib2"
 SST_ROOT="/lfs4/BMC/public/data/grids/ncep/sst/0p083deg/grib2"
 SST_update_hour=99
+GVF_ROOT="/public/data/sat/ncep/viirs/gvf/grib2"
+GVF_update_hour=99
+IMSSNOW_ROOT="/public/data/grids/ncep/snow/ims96/grib2"
+SNOWICE_update_hour=99
 
 #
 #-----------------------------------------------------------------------
@@ -592,6 +604,7 @@ i_use_2mT4B=0
 #
 HYBENSMEM_NMIN=80
 ANAVINFO_FN="anavinfo.fv3lam_hrrr"
+ENKF_ANAVINFO_FN="anavinfo.enkf_fv3lam_hrrr"
 CONVINFO_FN="convinfo.rrfs"
 BERROR_FN="rap_berror_stats_global_RAP_tune" #under $FIX_GSI
 OBERROR_FN="errtable.rrfs"
@@ -1047,6 +1060,11 @@ ESGgrid_WIDE_HALO_WIDTH=""
 # BLOCKSIZE:
 # The amount of data that is passed into the cache at a time.
 #
+# IO_LAYOUT_X,IO_LAYOUT_Y:
+# When wrtie out restrat files, how many subdomain files will be write in
+# x and y directory. Right now, please always set IO_LAYOUT_X=1.
+# LAYOUT_Y/IO_LAYOUT_Y needs to be a integer number.
+#
 # FH_DFI_RADAR:
 # the forecast hour to use radar tten, this is used  to set the fh_dfi_radar 
 # parameter in input.nml, e.g. FH_DFI_RADAR="0.0,0.25,0.5,0.75,1.0"
@@ -1077,6 +1095,8 @@ ESGgrid_WIDE_HALO_WIDTH=""
 DT_ATMOS=""
 LAYOUT_X=""
 LAYOUT_Y=""
+IO_LAYOUT_X="1"
+IO_LAYOUT_Y="1"
 BLOCKSIZE=""
 FH_DFI_RADAR="-20000000000"
 #
@@ -1108,8 +1128,8 @@ FH_DFI_RADAR="-20000000000"
 QUILTING="TRUE"
 PRINT_ESMF="FALSE"
 
-WRTCMP_write_groups=""
-WRTCMP_write_tasks_per_group=""
+WRTCMP_write_groups="1"
+WRTCMP_write_tasks_per_group="20"
 
 WRTCMP_output_grid="''"
 WRTCMP_cen_lon=""
@@ -1207,10 +1227,14 @@ PREEXISTING_DIR_METHOD="delete"
 # Set VERBOSE.  This is a flag that determines whether or not the experiment
 # generation and workflow task scripts tend to be print out more informational
 # messages.
+# Set SAVE_CYCLE_LOG.  This is a flag that determines whether or not save
+#    the information related to data assimilation cycling, such as background
+#    used in each cycle
 #
 #-----------------------------------------------------------------------
 #
 VERBOSE="TRUE"
+SAVE_CYCLE_LOG="TRUE"
 #
 #-----------------------------------------------------------------------
 #
@@ -1487,9 +1511,12 @@ RUN_POST_TN="run_post"
 RUN_WGRIB2_TN="run_wgrib2"
 
 ANAL_GSI_TN="anal_gsi_input"
+OBSERVER_GSI_ENSMEAN_TN="observer_gsi_ensmean"
+OBSERVER_GSI_TN="observer_gsi"
 PREP_START_TN="prep_start"
 PREP_CYC_SPINUP_TN="prep_cyc_spinup"
 PREP_CYC_PROD_TN="prep_cyc_prod"
+PREP_CYC_ENSMEAN_TN="prep_cyc_ensmean"
 PREP_CYC_TN="prep_cyc"
 PROCESS_RADAR_REF_TN="process_radarref"
 PROCESS_LIGHTNING_TN="process_lightning"
@@ -1511,6 +1538,7 @@ NNODES_RUN_FCST=""  # This is calculated in the workflow generation scripts, so 
 NNODES_RUN_POST="2"
 NNODES_RUN_WGRIB2="1"
 NNODES_RUN_ANAL="16"
+NNODES_RUN_ENKF="40"
 NNODES_PROC_RADAR="2"
 NNODES_PROC_LIGHTNING="1"
 NNODES_PROC_BUFR="1"
@@ -1521,8 +1549,11 @@ NNODES_RUN_GRAPHICS="1"
 # Number of cores.
 #
 NCORES_RUN_ANAL="4"
+NCORES_RUN_OBSERVER="4"
+NCORES_RUN_ENKF="4"
 NATIVE_RUN_FCST="--cpus-per-task 2 --exclusive"
 NATIVE_RUN_ANAL="--cpus-per-task 2 --exclusive"
+NATIVE_RUN_ENKF="--cpus-per-task 4 --exclusive"
 #
 # Number of MPI processes per node.
 #
@@ -1538,6 +1569,7 @@ PPN_RUN_FCST="24"  # This may have to be changed depending on the number of thre
 PPN_RUN_POST="24"
 PPN_RUN_WGRIB2="1"
 PPN_RUN_ANAL="24"
+PPN_RUN_ENKF="4"
 PPN_PROC_RADAR="24"
 PPN_PROC_LIGHTNING="1"
 PPN_PROC_BUFR="1"
@@ -1555,10 +1587,12 @@ WTIME_GET_EXTRN_LBCS="00:45:00"
 WTIME_MAKE_ICS="00:30:00"
 WTIME_MAKE_LBCS="01:30:00"
 WTIME_RUN_PREPSTART="00:10:00"
+WTIME_RUN_PREPSTART_ENSMEAN="02:30:00"
 WTIME_RUN_FCST="04:30:00"
 WTIME_RUN_POST="00:15:00"
 WTIME_RUN_WGRIB2="00:40:00"
 WTIME_RUN_ANAL="00:30:00"
+WTIME_RUN_ENKF="01:00:00"
 WTIME_PROC_RADAR="00:25:00"
 WTIME_PROC_LIGHTNING="00:25:00"
 WTIME_PROC_BUFR="00:25:00"
@@ -1567,8 +1601,10 @@ WTIME_RUN_NONVARCLDANL="00:20:00"
 #
 # Memory.
 #
-MEMO_RUN_REF2TTEN="10G"
+MEMO_RUN_PROCESSBUFR="20G"
+MEMO_RUN_REF2TTEN="20G"
 MEMO_RUN_NONVARCLDANL="20G"
+MEMO_RUN_PREPSTART="24G"
 MEMO_RUN_WGRIB2="24G"
 #
 # Maximum number of attempts.
@@ -1583,9 +1619,11 @@ MAXTRIES_MAKE_LBCS="1"
 MAXTRIES_RUN_PREPSTART="1"
 MAXTRIES_RUN_FCST="1"
 MAXTRIES_ANAL_GSI="1"
+MAXTRIES_ANAL_ENKF="1"
 MAXTRIES_RUN_POST="1"
 MAXTRIES_RUN_WGRIB2="1"
 MAXTRIES_RUN_ANAL="1"
+MAXTRIES_RUN_ENKF="1"
 MAXTRIES_PROCESS_RADARREF="1"
 MAXTRIES_PROCESS_LIGHTNING="1"
 MAXTRIES_PROCESS_BUFR="1"
@@ -1609,6 +1647,7 @@ MAXTRIES_CLDANL_NONVAR="1"
 #  "hrrr"  (HRRR 3-km CONUS grid)
 #  "hrrre" (HRRRE 3-km CONUS grid)
 #  "rrfsak" (RRFS 3-km Alaska grid)
+#  "hrrrak" (HRRR 3-km Alaska grid)
 #
 ADDNL_OUTPUT_GRIDS=( )
 #
@@ -1701,10 +1740,21 @@ TILE_SETS="full"
 # (GLOBAL_VAR_DEFNS_FN), this variable appear with its leading zeros 
 # stripped.  This variable is not used if DO_ENSEMBLE is not set to "TRUE".
 # 
+# DO_ENSCONTROL: 
+# In ensemble mode, whether or not to run member 1 as control member
+#
+# DO_GSIOBSERVER:
+# Decide whether or not to run GSI observer
+#
+# DO_ENKFUPDATE:
+# Decide whether or not to run EnKF update for the ensemble members
 #-----------------------------------------------------------------------
 #
 DO_ENSEMBLE="FALSE"
 NUM_ENS_MEMBERS="1"
+DO_ENSCONTROL="FALSE"
+DO_GSIOBSERVER="FALSE"
+DO_ENKFUPDATE="FALSE"
 #
 #-----------------------------------------------------------------------
 #
@@ -1716,8 +1766,29 @@ NUM_ENS_MEMBERS="1"
 # DO_SURFACE_CYCLE:
 # Flag that determines whether to continue cycle surface fields.
 #
+# SURFACE_CYCLE_DELAY_HRS:
+# The surface cycle usually happens in cold start cycle. But there is
+# a need to delay surface cycle to the warm start cycle following the
+# cold start cycle. This one sets how many hours we want the surface
+# cycle being delayed.
+#
+# DO_SOIL_ADJUST:
+# Flag that determines whether to adjust soil T and Q based on
+# the lowest level T/Q analysis increments.
+#
+# DO_UPDATE_BC:
+# Flag that determines whether to update boundary conditions based on the 
+# analysis results
+#
+# DO_RADDA:
+# Flag that determines whether to assimilate satellite radiance data
+#
 DO_DACYCLE="FALSE"
 DO_SURFACE_CYCLE="FALSE"
+SURFACE_CYCLE_DELAY_HRS="1"
+DO_SOIL_ADJUST="FALSE"
+DO_UPDATE_BC="FALSE"
+DO_RADDA="FALSE"
 #
 #-----------------------------------------------------------------------
 #
@@ -1772,6 +1843,15 @@ USE_ZMTNBLCK="false"
 #-----------------------------------------------------------------------
 #
 HALO_BLEND=10
+#
+#-----------------------------------------------------------------------
+# 
+# PRINT_DIFF_PGR:
+# Option to turn on/off pressure tendency diagnostic
+#
+#-----------------------------------------------------------------------
+#
+PRINT_DIFF_PGR=FALSE
 #
 #-----------------------------------------------------------------------
 #
@@ -1876,3 +1956,4 @@ CLEAN_OLDRUN_HRS="48"
 CLEAN_OLDFCST_HRS="24"
 CLEAN_OLDSTMPPOST_HRS="24"
 CLEAN_NWGES_HRS="72"
+

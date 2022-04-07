@@ -83,6 +83,12 @@ case $MACHINE in
   APRUN="mpirun -l -np 1"
   ;;
 #
+"WCOSS_DELL_P3")
+  ulimit -s unlimited
+  ulimit -a
+  APRUN="mpirun -l -np 1"
+  ;;
+#
 "HERA")
   ulimit -s unlimited
   ulimit -a
@@ -158,13 +164,13 @@ print_info_msg "$VERBOSE" "fixgriddir is $fixgriddir"
 #-----------------------------------------------------------------------
 
 cp_vrfy ${fixgriddir}/fv3_grid_spec          fv3sar_grid_spec.nc
-cp_vrfy ${fixgriddir}/geo_em.d01.nc          geo_em.d01.nc
 
 #-----------------------------------------------------------------------
 #
 # Link to the NLDN data
 #
 #-----------------------------------------------------------------------
+run_lightning=false
 filenum=0
 LIGHTNING_FILE=${LIGHTNING_ROOT}/vaisala/netcdf
 for n in 00 05 ; do
@@ -181,6 +187,7 @@ for n in 55 50 45 40 35 ; do
   if [ -r ${filename} ]; then
   ((filenum += 1 ))
     ln -sf ${filename} ./NLDN_lightning_${filenum}
+    run_lightning=true
   else
    echo " ${filename} does not exist"
   fi
@@ -209,12 +216,12 @@ cp_vrfy $BUFR_TABLE prepobs_prep.bufrtable
 #                   = 1 for FV3LAM
 #-----------------------------------------------------------------------
 
-cat << EOF > lightning.namelist
+cat << EOF > namelist.lightning
  &setup
   analysis_time = ${YYYYMMDDHH},
   NLDN_filenum  = ${filenum},
-  IfAlaska    = false,
-  bkversion=1,
+  grid_type = "${PREDEF_GRID_NAME}",
+  obs_type = "nldn_nc"
  /
 
 EOF
@@ -226,7 +233,7 @@ EOF
 #
 #-----------------------------------------------------------------------
 #
-exect="process_Lightning_nc.exe"
+exect="process_Lightning.exe"
 
 if [ -f ${EXECDIR}/$exect ]; then
   print_info_msg "$VERBOSE" "
@@ -246,8 +253,11 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-$APRUN ./${exect} < lightning.namelist > stdout 2>&1 || print_err_msg "\
-Call to executable to run lightning (nc) process returned with nonzero exit code."
+
+if [[ "$run_lightning" == true ]]; then
+  $APRUN ./${exect} < namelist.lightning > stdout 2>&1 || print_err_msg "\
+  Call to executable to run lightning (nc) process returned with nonzero exit code."
+fi
 #
 #-----------------------------------------------------------------------
 #

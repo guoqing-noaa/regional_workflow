@@ -126,7 +126,7 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-extrn_mdl_staging_dir="${CYCLE_DIR}/${EXTRN_MDL_NAME_LBCS}/for_LBCS"
+extrn_mdl_staging_dir="${CYCLE_DIR}${SLASH_ENSMEM_SUBDIR}/${EXTRN_MDL_NAME_LBCS}/for_LBCS"
 extrn_mdl_var_defns_fp="${extrn_mdl_staging_dir}/${EXTRN_MDL_LBCS_VAR_DEFNS_FN}"
 . ${extrn_mdl_var_defns_fp}
 #
@@ -169,6 +169,8 @@ case "${CCPP_PHYS_SUITE}" in
       varmap_file="GSDphys_var_map.txt"
     elif [ "${EXTRN_MDL_NAME_LBCS}" = "NAM" ] || \
          [ "${EXTRN_MDL_NAME_LBCS}" = "FV3GFS" ] || \
+         [ "${EXTRN_MDL_NAME_LBCS}" = "GEFS" ] || \
+         [ "${EXTRN_MDL_NAME_LBCS}" = "GDASENKF" ] || \
          [ "${EXTRN_MDL_NAME_LBCS}" = "GSMGFS" ]; then
       varmap_file="GFSphys_var_map.txt"
     fi
@@ -332,6 +334,21 @@ case "${EXTRN_MDL_NAME_LBCS}" in
   fi
   ;;
 
+"GDASENKF")
+  tracers_input="[\"spfh\",\"clwmr\",\"o3mr\",\"icmr\",\"rwmr\",\"snmr\",\"grle\"]"
+  tracers="[\"sphum\",\"liq_wat\",\"o3mr\",\"ice_wat\",\"rainwat\",\"snowwat\",\"graupel\"]"
+  external_model="GFS"
+  input_type="gaussian_netcdf"
+  fn_atm_nemsio="${EXTRN_MDL_FNS[0]}"
+  fn_sfc_nemsio="${EXTRN_MDL_FNS[1]}"
+  ;;
+
+"GEFS")
+  external_model="GFS"
+  fn_grib2="${EXTRN_MDL_FNS[0]}"
+  input_type="grib2"
+  ;;
+
 "RAP")
   external_model="RAP"
   input_type="grib2"
@@ -404,6 +421,13 @@ for (( i=0; i<${num_fhrs}; i++ )); do
     elif [ "${FV3GFS_FILE_FMT_LBCS}" = "netcdf" ]; then
       fn_atm_nemsio="${EXTRN_MDL_FNS[$i]}"
     fi
+    ;;
+  "GDASENKF")
+    fn_atm_nemsio="${EXTRN_MDL_FNS[0][$i]}"
+    fn_sfc_nemsio="${EXTRN_MDL_FNS[1][$i]}"
+    ;;
+  "GEFS")
+    fn_grib2="${EXTRN_MDL_FNS[$i]}"
     ;;
   "RAP")
     fn_grib2="${EXTRN_MDL_FNS[$i]}"
