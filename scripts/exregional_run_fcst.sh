@@ -106,8 +106,7 @@ case $MACHINE in
   "WCOSS_DELL_P3")
     ulimit -s unlimited
     ulimit -a
-    APRUN="mpirun"
-    OMP_NUM_THREADS=4
+    APRUN="mpirun -l -np ${PE_MEMBER01}"
     OMP_STACKSIZE=2048m
     ;;
 

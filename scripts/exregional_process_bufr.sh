@@ -186,15 +186,8 @@ cp_vrfy $BUFR_TABLE prepobs_prep.bufrtable
 if [[ "${NET}" = "RTMA"* ]]; then
   SUBH=$(date +%M -d "${START_DATE}")
   obs_source="rtma_ru"
-  case $MACHINE in
-  "WCOSS_C" | "WCOSS" | "WCOSS_DELL_P3")
-    obsfileprefix=${obs_source}
-    obspath_tmp=${OBSPATH}/${obs_source}.${YYYYMMDD}
-    ;;
-  "JET" | "HERA")
-    obsfileprefix=${obs_source}
-    obspath_tmp=${OBSPATH}/${obs_source}.${YYYYMMDD}
-  esac
+  obsfileprefix=${obs_source}
+  obspath_tmp=${OBSPATH}/${obs_source}.${YYYYMMDD}
 
 else
   SUBH=""

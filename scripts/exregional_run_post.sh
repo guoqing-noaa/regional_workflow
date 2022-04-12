@@ -311,14 +311,16 @@ fi
 cp_vrfy ${post_config_fp} ./postxconfig-NT.txt
 cp_vrfy ${post_params_fp} ./params_grib2_tbl_new
 cp_vrfy ${EXECDIR}/upp.x .
-if [ ${PREDEF_GRID_NAME} = "RRFS_CONUS_3km" ]; then
+if [ ${PREDEF_GRID_NAME} = "RRFS_CONUS_3km_HRRRIC" ]; then
   grid_specs_rrfs="lambert:-97.5:38.500000 237.826355:1746:3000 21.885885:1014:3000"
+elif [ ${PREDEF_GRID_NAME} = "RRFS_CONUS_3km" ]; then
+  grid_specs_rrfs="lambert:-97.5:38.500000 237.280700:1799:3000 21.138120:1057:3000"
 elif [ ${PREDEF_GRID_NAME} = "RRFS_NA_3km" ]; then
   grid_specs_rrfs="rot-ll:248.000000:-42.000000:0.000000 309.000000:4081:0.025000 -33.0000000:2641:0.025000"
 elif [ ${PREDEF_GRID_NAME} = "GSD_RAP13km" ]; then
   grid_specs_rrfs="rot-ll:254.000000:-36.000000:0.000000 304.174600:956:0.1169118 -48.5768500:831:0.1170527"
 fi
-if [ ${PREDEF_GRID_NAME} = "RRFS_CONUS_3km" ] || [ ${PREDEF_GRID_NAME} = "RRFS_NA_3km" ] || [ ${PREDEF_GRID_NAME} = "GSD_RAP13km" ]; then
+if [ ${PREDEF_GRID_NAME} = "RRFS_CONUS_3km_HRRRIC" ] || [ ${PREDEF_GRID_NAME} = "RRFS_CONUS_3km" ] || [ ${PREDEF_GRID_NAME} = "RRFS_NA_3km" ] || [ ${PREDEF_GRID_NAME} = "GSD_RAP13km" ]; then
   if [ -f ${FFG_DIR}/latest.FFG ]; then
     cp_vrfy ${FFG_DIR}/latest.FFG .
     wgrib2 latest.FFG -match "0-12 hour" -end -new_grid_interpolation bilinear -new_grid_winds grid -new_grid ${grid_specs_rrfs} ffg_12h.grib2
@@ -381,10 +383,9 @@ fi
 bgdawp=${postprd_dir}/${NET}.t${cyc}z.bgdawpf${fhr}.${tmmark}.grib2
 bgrd3d=${postprd_dir}/${NET}.t${cyc}z.bgrd3df${fhr}.${tmmark}.grib2
 bgsfc=${postprd_dir}/${NET}.t${cyc}z.bgsfcf${fhr}.${tmmark}.grib2
-mv_vrfy BGDAWP.GrbF${post_fhr} ${bgdawp}
-mv_vrfy BGRD3D.GrbF${post_fhr} ${bgrd3d}
-# small subset of surface fields for testbed and internal use
-#wgrib2 -match "APCP|parmcat=16 parm=196|PRATE" ${bgrd3d} -grib ${bgsfc}
+
+wgrib2 PRSLEV.GrbF${post_fhr} -set center 7 -grib ${bgdawp}
+wgrib2 NATLEV.GrbF${post_fhr} -set center 7 -grib ${bgrd3d}
 
 #
 #-----------------------------------------------------------------------
