@@ -299,6 +299,7 @@ fi
 # we use below.
 #
 if [ "${CCPP_PHYS_SUITE}" = "FV3_HRRR" ] || \
+   [ "${CCPP_PHYS_SUITE}" = "FV3_HRRR_smoke" ]  || \
    [ "${CCPP_PHYS_SUITE}" = "FV3_RAP" ]  || \
    [ "${CCPP_PHYS_SUITE}" = "FV3_GFS_v15_thompson_mynn_lam3km" ]; then
 
@@ -406,6 +407,11 @@ else
     sfc_data.nc is not available for cycling"
   fi
 fi
+
+#
+ ln -sf  /mnt/lfs4/BMC/gsd-fv3-dev/Haiqin.Li/ForcingData/NA_3km/dust_3km_test.nc  ${run_dir}/INPUT/dust12m_data.nc
+ ln -sf  /mnt/lfs4/BMC/gsd-fv3-dev/Haiqin.Li/ForcingData/NA_3km/FIRE_GBBEPx_data_3km_in.nc   ${run_dir}/INPUT/SMOKE_GBBEPx_data.nc
+ ln -sf  /mnt/lfs4/BMC/gsd-fv3-dev/Haiqin.Li/ForcingData/NA_3km/antro_3km_in.nc  ${run_dir}/INPUT/emi_data.nc
 
 #
 #-----------------------------------------------------------------------
