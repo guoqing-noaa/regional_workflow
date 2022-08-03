@@ -220,7 +220,6 @@ FV3_RAP:
     iovr: 3
     ldiag_ugwp: false
     lgfdlmprad: false
-    sfclay_compute_flux: true
     thsfc_loc: false 
 
 FV3_RRFS_v1beta:
