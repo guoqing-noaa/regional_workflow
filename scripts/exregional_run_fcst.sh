@@ -410,11 +410,10 @@ fi
 
 #
 if [ "${CCPP_PHYS_SUITE}" = "FV3_HRRR_smoke" ]; then
- ln -sf  /mnt/lfs4/BMC/gsd-fv3-dev/Haiqin.Li/ForcingData/NA_3km/dust_3km_test.nc  ${run_dir}/INPUT/dust12m_data.nc
- ln -sf  /mnt/lfs4/BMC/gsd-fv3-dev/Haiqin.Li/ForcingData/NA_3km/antro_3km_in.nc  ${run_dir}/INPUT/emi_data.nc
+ ln_vrfy -snf  ${FIX_SMOKE_DUST}/${PREDEF_GRID_NAME}/dust12m_data.nc  ${run_dir}/INPUT/dust12m_data.nc
+ ln_vrfy -snf  ${FIX_SMOKE_DUST}/${PREDEF_GRID_NAME}/emi_data.nc      ${run_dir}/INPUT/emi_data.nc
  yyyymmdd=${cdate:0:8}
- ln -sf  /mnt/lfs4/BMC/gsd-fv3-dev/Haiqin.Li/ForcingData/NA_3km/FIRE_GBBEPx_data_3km_in.nc   ${run_dir}/INPUT/SMOKE_GBBEPx_data.nc
-#ln -sf  /mnt/lfs4/BMC/gsd-fv3-dev/Haiqin.Li/ForcingData/NA_3km/${yyyymmdd}/FIRE_GBBEPx_data_3km_in.nc   ${run_dir}/INPUT/SMOKE_GBBEPx_data.nc
+ ln_vrfy -snf  ${FIRE_GBBEPx_ROOT}/${PREDEF_GRID_NAME}/FIRE_GBBEPx_data_3km_in.nc   ${run_dir}/INPUT/SMOKE_GBBEPx_data.nc
 fi
 
 #

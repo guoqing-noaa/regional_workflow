@@ -842,6 +842,7 @@ if [ "${RUN_ENVIR}" = "nco" ]; then
   FIX_UPP=${FIX_UPP:-"${HOMErrfs}/fix/upp"}
   FIX_CRTM=${FIX_CRTM:-"${HOMErrfs}/fix/crtm/CRTM_v2.3.0"}
   FIX_UPP_CRTM=${FIX_UPP_CRTM:-"${HOMErrfs}/fix/crtm/CRTM_v2.4.0"}
+  FIX_SMOKE_DUST=${FIX_SMOKE_DUST:-"${HOMErrfs}/fix/smoke_dust"}
   AIRCRAFT_REJECT=${AIRCRAFT_REJECT:-"${FIX_GSI}"}
   SFCOBS_USELIST=${SFCOBS_USELIST:-"${FIX_GSI}"}
 fi
@@ -1390,6 +1391,7 @@ FIXLAM="${EXPTDIR}/fix_lam"
 FIXgsi="${EXPTDIR}/fix_gsi"
 FIXcrtm="${EXPTDIR}/fix_crtm"
 FIXuppcrtm="${EXPTDIR}/fix_upp_crtm"
+FIXsmokedust="${EXPTDIR}/fix_smoke_dust"
 SST_ROOT="${SST_ROOT}"
 
 if [ "${RUN_ENVIR}" = "nco" ]; then
@@ -2718,6 +2720,7 @@ ENKF_FCST="${ENKF_FCST}"
 FIX_GSI="${FIX_GSI}"
 FIX_CRTM="${FIX_CRTM}"
 FIX_UPP_CRTM="${FIX_UPP_CRTM}"
+FIX_SMOKE_DUST="${FIX_SMOKE_DUST}"
 AIRCRAFT_REJECT="${AIRCRAFT_REJECT}"
 SFCOBS_USELIST="${SFCOBS_USELIST}"
 
