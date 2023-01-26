@@ -50,27 +50,27 @@ if [[ $DO_RETRO == "TRUE" ]] ; then
 #    EXTRN_MDL_SOURCE_BASEDIR_LBCS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/rap/full/wrfnat/grib2
 
     if [ ${EXTRN_MDL_NAME_ICS} == "FV3GFS" ] ; then
-      EXTRN_MDL_SOURCE_BASEDIR_ICS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/gfs/0p25deg/grib2
+      EXTRN_MDL_SOURCE_BASEDIR_ICS=/lfs1/BMC/wrfruc/grap/data/gfs_tmp
     elif [ ${EXTRN_MDL_NAME_ICS} == "GEFS" ] ; then
       EXTRN_MDL_SOURCE_BASEDIR_ICS="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/GEFS/dsg"
     fi
     if [ ${EXTRN_MDL_NAME_LBCS} == "FV3GFS" ] ; then
-      EXTRN_MDL_SOURCE_BASEDIR_LBCS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/gfs/0p25deg/grib2
+      EXTRN_MDL_SOURCE_BASEDIR_LBCS=/lfs1/BMC/wrfruc/grap/data/gfs_tmp
     elif [ ${EXTRN_MDL_NAME_LBCS} == "GEFS" ] ; then
       EXTRN_MDL_SOURCE_BASEDIR_LBCS="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/GEFS/dsg"
     fi
 
-    OBSPATH=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/obs_rap
+    OBSPATH=/lfs1/BMC/wrfruc/grap/data/obs_rap_tmp
     OBSPATH_PM=/mnt/lfs1/BMC/wrfruc/hwang/rrfs_sd/pm
-    OBSPATH_NSSLMOSIAC=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/reflectivity
-    LIGHTNING_ROOT=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/lightning
-    ENKF_FCST=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/enkf/atm
-    AIRCRAFT_REJECT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/amdar_reject_lists"
-    SFCOBS_USELIST="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/mesonet_uselists"
-    SST_ROOT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/highres_sst"
-    GVF_ROOT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/gvf/grib2"
-    IMSSNOW_ROOT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/snow/ims96/grib2"
-    RAPHRR_SOIL_ROOT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/rap_hrrr_soil"
+    OBSPATH_NSSLMOSIAC=/lfs1/BMC/wrfruc/grap/data/refl_unzip/reflect
+    LIGHTNING_ROOT=/lfs1/BMC/wrfruc/grap/data/lightning
+    ENKF_FCST=/lfs1/BMC/wrfruc/grap/data/enkf/atm
+    AIRCRAFT_REJECT="/lfs1/BMC/wrfruc/grap/data/amdar_reject_lists"
+    SFCOBS_USELIST="/lfs1/BMC/wrfruc/grap/data/mesonet_uselists"
+    SST_ROOT="/lfs1/BMC/wrfruc/grap/data/highres_sst"
+    GVF_ROOT="/lfs1/BMC/wrfruc/grap/data/gvf/grib2"
+    IMSSNOW_ROOT="/lfs1/BMC/wrfruc/grap/data/snow/ims96/grib2"
+    RAPHRR_SOIL_ROOT="/lfs1/BMC/wrfruc/grap/data/rap_hrrr_soil"
   fi
   if [[ $MACHINE == "hera" ]] ; then
 
