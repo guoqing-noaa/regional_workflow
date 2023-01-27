@@ -139,7 +139,7 @@ case $MACHINE in
     if [ "${PREDEF_GRID_NAME}" == "RRFS_NA_3km" ]; then
       OMP_NUM_THREADS=4
     else
-      OMP_NUM_THREADS=2
+      OMP_NUM_THREADS=4
     fi
     ;;
 
