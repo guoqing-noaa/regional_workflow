@@ -402,7 +402,8 @@ fi
         fns_in_arcv=( "gfs.t${hh}z.pgrb2.0p25.f0${fcst_hh}" )  # Get only 0.25 degree files for now.
 
       elif [ "${fv3gfs_file_fmt}" = "netcdf" ]; then
-        fns_on_disk=( "gfs.t${hh}z.atmf0${fcst_hh}.nc" "gfs.t${hh}z.sfcf0${fcst_hh}.nc")  # use netcdf
+        #fns_on_disk=( "gfs.t${hh}z.atmf0${fcst_hh}.nc" "gfs.t${hh}z.sfcf0${fcst_hh}.nc")  # use netcdf
+        fns_on_disk=( "sfg2_${yyyymmdd}${hh}_fhr03_ensmean" "bfg2_${yyyymmdd}${hh}_fhr03_ensmean")  # use netcdf
         fns_in_arcv=( "gfs.t${hh}z.pgrb2.0p25.f0${fcst_hh}" )  # Get only 0.25 degree files for now.
       fi
       ;;
