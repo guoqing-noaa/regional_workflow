@@ -64,7 +64,7 @@ if [[ $DO_RETRO == "TRUE" ]] ; then
     OBSPATH_PM=/mnt/lfs1/BMC/wrfruc/hwang/rrfs_sd/pm
     OBSPATH_NSSLMOSIAC=/lfs1/BMC/wrfruc/grap/data/refl_unzip/reflect
     LIGHTNING_ROOT=/lfs1/BMC/wrfruc/grap/data/lightning
-    ENKF_FCST=/lfs1/BMC/wrfruc/grap/data/enkf/atm
+    ENKF_FCST=/lfs1/BMC/wrfruc/grap/data/grap.ens
     AIRCRAFT_REJECT="/lfs1/BMC/wrfruc/grap/data/amdar_reject_lists"
     SFCOBS_USELIST="/lfs1/BMC/wrfruc/grap/data/mesonet_uselists"
     SST_ROOT="/lfs1/BMC/wrfruc/grap/data/highres_sst"
