@@ -1,8 +1,8 @@
 
 if [[ $MACHINE == "jet" ]] ; then
   if [[ -n $RESERVATION ]] ; then
-    ACCOUNT=rtrr
-    SERVICE_ACCOUNT=rtrr
+    ACCOUNT=rtwrfruc
+    SERVICE_ACCOUNT=rtwrfruc
     PARTITION_DEFAULT=kjet
     PARTITION_FCST=kjet
     PARTITION_GRAPHICS=kjet
@@ -16,7 +16,7 @@ if [[ $MACHINE == "jet" ]] ; then
     QUEUE_GRAPHICS="rt"
     QUEUE_HPSS="rt"
     QUEUE_POST="rt"
-    RESERVATION_POST="rrfsdet"
+    RESERVATION_POST="rrfsens"
     NNODES_MAKE_ICS="3"
     PPN_MAKE_ICS="20"
     NNODES_MAKE_LBCS="3"
