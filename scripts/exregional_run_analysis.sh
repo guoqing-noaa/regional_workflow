@@ -299,7 +299,7 @@ if  [[ ${regional_ensemble_option:-1} -eq 1 ]]; then #using GDAS
   "JET" | "HERA" | "ORION" )
 
     for loop in $loops; do
-      for timelist in $(ls ${ENKF_FCST}/*.gdas.t*z.atmf${loop}.mem080.${ftype}); do
+      for timelist in $(ls ${ENKF_FCST}/*.gdas.t*z.atmf${loop}.mem040.${ftype}); do
         availtimeyy=$(basename ${timelist} | cut -c 1-2)
         availtimeyyyy=20${availtimeyy}
         availtimejjj=$(basename ${timelist} | cut -c 3-5)

@@ -105,5 +105,6 @@ if [[ ${regional_ensemble_option} == "5" ]]; then
   CYCL_HRS_PRODSTART_ENS=( "07" "19" )
   DO_ENVAR_RADAR_REF="TRUE"
 fi
+HYBENSMEM_NMIN=30
 
 
