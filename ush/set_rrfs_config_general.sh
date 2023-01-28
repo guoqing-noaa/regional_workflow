@@ -2,7 +2,7 @@
 if [[ $MACHINE == "jet" ]] ; then
   if [[ -n $RESERVATION ]] ; then
     ACCOUNT=rtrr
-    SERVICE_ACCOUNT=nrtrr
+    SERVICE_ACCOUNT=rtrr
     PARTITION_DEFAULT=kjet
     PARTITION_FCST=kjet
     PARTITION_GRAPHICS=kjet
