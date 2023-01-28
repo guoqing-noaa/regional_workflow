@@ -50,7 +50,7 @@ if [[ $DO_RETRO == "TRUE" ]] ; then
 #    EXTRN_MDL_SOURCE_BASEDIR_LBCS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/rap/full/wrfnat/grib2
 
     if [ ${EXTRN_MDL_NAME_ICS} == "FV3GFS" ] ; then
-      EXTRN_MDL_SOURCE_BASEDIR_ICS=/lfs1/BMC/wrfruc/grap/data/gfs_tmp
+      EXTRN_MDL_SOURCE_BASEDIR_ICS=/lfs1/BMC/wrfruc/grap/data/grap.netcdf
     elif [ ${EXTRN_MDL_NAME_ICS} == "GEFS" ] ; then
       EXTRN_MDL_SOURCE_BASEDIR_ICS="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/GEFS/dsg"
     fi
