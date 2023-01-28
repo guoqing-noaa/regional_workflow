@@ -72,7 +72,7 @@ NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
 NCL_HOME="/home/rtrr/RRFS/graphics"
 COMINgfs=""
 
-FV3GFS_FILE_FMT_ICS="grib2"
+FV3GFS_FILE_FMT_ICS="netcdf"
 FV3GFS_FILE_FMT_LBCS="grib2"
 
 NCORES_RUN_ANAL=360
