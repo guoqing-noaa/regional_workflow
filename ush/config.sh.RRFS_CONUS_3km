@@ -17,6 +17,7 @@ if [[ -n $RESERVATION ]] ; then
   QUEUE_DEFAULT="rth"
   QUEUE_FCST="rth"
   QUEUE_ANALYSIS="rth"
+  QUEUE_POST="rth"
   QUEUE_WGRIB2="rt"
   QUEUE_GRAPHICS="rt"
   QUEUE_HPSS="rt"
