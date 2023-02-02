@@ -251,7 +251,7 @@ if  [[ ${regional_ensemble_option:-1} -eq 1 ]]; then #using GDAS
   "WCOSS2")
 
     for loop in $loops; do
-      for timelist in $(ls ${ENKF_FCST}/enkfgdas.*/*/atmos/mem080/gdas*.atmf${loop}.${ftype}); do
+      for timelist in $(ls ${ENKF_FCST}/enkfgdas.*/*/atmos/mem040/gdas*.atmf${loop}.${ftype}); do
         availtimeyyyymmdd=$(echo ${timelist} | cut -d'/' -f9 | cut -c 10-17)
         availtimehh=$(echo ${timelist} | cut -d'/' -f10)
         availtime=${availtimeyyyymmdd}${availtimehh}
