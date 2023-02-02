@@ -54,21 +54,20 @@ if [[ $DO_RETRO == "TRUE" ]] ; then
        fi
        OBSPATH=/mnt/lfs4/HFIP/gsihyb/Chunhua.Zhou/data/obs
     else
-#        EXTRN_MDL_SOURCE_BASEDIR_ICS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/hrrr/conus/wrfnat/grib2
-#        EXTRN_MDL_SOURCE_BASEDIR_LBCS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/rap/full/wrfnat/grib2
-       EXTRN_MDL_SOURCE_BASEDIR_ICS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/gfs/0p25deg/grib2
-       EXTRN_MDL_SOURCE_BASEDIR_LBCS=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/gfs/0p25deg/grib2
-       OBSPATH=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/obs_rap
+       EXTRN_MDL_SOURCE_BASEDIR_ICS=/lfs1/BMC/wrfruc/grap/data/gfs_tmp
+       EXTRN_MDL_SOURCE_BASEDIR_LBCS=/lfs1/BMC/wrfruc/grap/data/gfs_tmp
     fi
 
-    OBSPATH_NSSLMOSIAC=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/reflectivity
-    LIGHTNING_ROOT=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/lightning
-    ENKF_FCST=/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/enkf/atm
-    AIRCRAFT_REJECT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/amdar_reject_lists"
-    SFCOBS_USELIST="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/mesonet_uselists"
-    SST_ROOT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/highres_sst"
-    GVF_ROOT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/gvf/grib2"
-    IMSSNOW_ROOT="/mnt/lfs4/BMC/wrfruc/Ruifang.Li/data/snow/ims96/grib2"
+    OBSPATH=/lfs1/BMC/wrfruc/grap/data/obs_rap_tmp
+    OBSPATH_NSSLMOSIAC=/lfs1/BMC/wrfruc/grap/data/refl_unzip/reflect
+    LIGHTNING_ROOT=/lfs1/BMC/wrfruc/grap/data/lightning
+    ENKF_FCST=/lfs1/BMC/wrfruc/grap/data/enkf/atm
+    AIRCRAFT_REJECT="/lfs1/BMC/wrfruc/grap/data/amdar_reject_lists"
+    SFCOBS_USELIST="/lfs1/BMC/wrfruc/grap/data/mesonet_uselists"
+    SST_ROOT="/lfs1/BMC/wrfruc/grap/data/highres_sst"
+    GVF_ROOT="/lfs1/BMC/wrfruc/grap/data/gvf/grib2"
+    IMSSNOW_ROOT="/lfs1/BMC/wrfruc/grap/data/snow/ims96/grib2"
+    RAPHRR_SOIL_ROOT="/lfs1/BMC/wrfruc/grap/data/rap_hrrr_soil"
   fi
   if [[ $MACHINE == "hera" ]] ; then
 
@@ -123,12 +122,12 @@ fi
 
 # clean system
 if [[ $DO_RETRO == "TRUE" ]] ; then
-  CLEAN_OLDPROD_HRS="240"
-  CLEAN_OLDLOG_HRS="240"
-  CLEAN_OLDRUN_HRS="240"
-  CLEAN_OLDFCST_HRS="240"
-  CLEAN_OLDSTMPPOST_HRS="240"
-  CLEAN_NWGES_HRS="240"
+  CLEAN_OLDPROD_HRS="720"
+  CLEAN_OLDLOG_HRS="720"
+  CLEAN_OLDRUN_HRS="720"
+  CLEAN_OLDFCST_HRS="720"
+  CLEAN_OLDSTMPPOST_HRS="720"
+  CLEAN_NWGES_HRS="720"
   if [[ $LBCS_ICS_ONLY == "TRUE" ]]; then
     CLEAN_OLDRUN_HRS="7777"
     CLEAN_OLDFCST_HRS="7777"
