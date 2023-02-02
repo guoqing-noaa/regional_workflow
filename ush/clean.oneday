@@ -1,0 +1,15 @@
+#!/bin/bash
+mydate=$1
+
+if [[ $# -lt 1 ]] ; then
+  echo "usage: $0 YYYYMMDD"
+  exit
+fi
+
+#cmd="ls -d"
+cmd="rm -rf "
+for hh in $(seq -w 00 23); do
+  str=$mydate$hh
+  echo $str
+  ./cleanit $str
+done
