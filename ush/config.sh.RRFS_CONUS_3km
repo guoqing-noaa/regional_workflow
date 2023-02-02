@@ -1,13 +1,13 @@
 MACHINE="jet"
-ACCOUNT="nrtrr"
-#RESERVATION="rrfsdet"
-#RESERVATION_POST="rrfsdet"
-EXPT_BASEDIR="YourOwnSpace"
+ACCOUNT="rtwrfruc"
+RESERVATION="rrfsens"
+RESERVATION_POST="rrfsens"
+EXPT_BASEDIR="/lfs1/BMC/wrfruc/grap/rrfz/rundir"
 EXPT_SUBDIR="RRFS_CONUS_3km"
 
 if [[ -n $RESERVATION ]] ; then
-  ACCOUNT=rtrr
-  SERVICE_ACCOUNT=rtrr
+  ACCOUNT=rtwrfruc
+  SERVICE_ACCOUNT=rtwrfruc
   PARTITION_DEFAULT=kjet
   PARTITION_FCST=kjet
   PARTITION_GRAPHICS=kjet
@@ -83,13 +83,22 @@ BOUNDARY_LEN_HRS="18"
 
 # avaialble retro period:
 # 20210511-20210531; 20210718-20210801
-DATE_FIRST_CYCL="20210511"
-DATE_LAST_CYCL="20210512"
+DATE_FIRST_CYCL="20210826"
+DATE_LAST_CYCL="20210831"
 CYCL_HRS=( "00" "12" )
 CYCL_HRS_SPINSTART=("03" "15")
 CYCL_HRS_PRODSTART=("09" "21")
-CYCLEMONTH="5"
-CYCLEDAY="11-12"
+CYCLEMONTH="8"
+CYCLEDAY="26-31"
+
+STARTYEAR=${DATE_FIRST_CYCL:0:4}
+STARTMONTH=${DATE_FIRST_CYCL:4:2}
+STARTDAY=${DATE_FIRST_CYCL:6:2}
+STARTHOUR="00"
+ENDYEAR=${DATE_LAST_CYCL:0:4}
+ENDMONTH=${DATE_LAST_CYCL:4:2}
+ENDDAY=${DATE_LAST_CYCL:6:2}
+ENDHOUR="23"
 
 PREEXISTING_DIR_METHOD="upgrade" # "rename"
 INITIAL_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 12:00:00"
@@ -115,12 +124,12 @@ RESTART_INTERVAL="1"
 SST_update_hour=01
 GVF_update_hour=04
 SNOWICE_update_hour=00
-SOIL_SURGERY_time=2022072404
+SOIL_SURGERY_time=2021082604
 
 DT_ATMOS=60
 NCORES_RUN_ANAL=240
 NCORES_RUN_OBSERVER=80
-HYBENSMEM_NMIN=66
+HYBENSMEM_NMIN=30
 HALO_BLEND=20
 IO_LAYOUT_Y=1
 PPN_RUN_REF2TTEN=1
@@ -143,13 +152,13 @@ WTIME_MAKE_LBCS="02:00:00"
 EXTRN_MDL_NAME_ICS="FV3GFS"
 EXTRN_MDL_NAME_LBCS="FV3GFS"
 
-FV3GFS_FILE_FMT_ICS="grib2"
+FV3GFS_FILE_FMT_ICS="netcdf"
 FV3GFS_FILE_FMT_LBCS="grib2"
 
 envir="para"
 
-NET="RRFS_CONUS"
-TAG="RRFS_CONUS_3km"
+NET="rrfs_a"
+TAG="rrfz"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
 TESTBED_FIELDS_FN="testbed_fields_bgdawp.txt"
@@ -211,9 +220,9 @@ COMINgfs=""
 
 . set_rrfs_config.sh
 
-STMP="YourOwnSpace/NCO_dirs/stmp"  # Path to directory STMP that mostly contains input files.
-PTMP="YourOwnSpace/NCO_dirs/ptmp"  # Path to directory STMP that mostly contains input files.
-NWGES="YourOwnSpace/NCO_dirs/nwges"  # Path to directory NWGES that save boundary, cold initial, restart files
+STMP="/lfs1/BMC/wrfruc/grap/rrfz/nco_dirs/stmp"  # Path to directory STMP that mostly contains input files.
+PTMP="/lfs1/BMC/wrfruc/grap/rrfz/nco_dirs"  # Path to directory STMP that mostly contains input files.
+NWGES="/lfs1/BMC/wrfruc/grap/rrfz/nco_dirs/nwges/${envir}/${NET}"  # Path to directory NWGES that save boundary, cold initial, restart files
 if [[ ${regional_ensemble_option} == "5" ]]; then
   RRFSE_NWGES="YourOwnSpace/NCO_dirs/nwges"  # Path to RRFSE directory NWGES that mostly contains ensemble restart files for GSI hybrid.
   NUM_ENS_MEMBERS=10     # FV3LAM ensemble size for GSI hybrid analysis
