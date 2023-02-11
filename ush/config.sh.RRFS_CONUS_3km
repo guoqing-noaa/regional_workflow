@@ -2,7 +2,7 @@ MACHINE="jet"
 ACCOUNT="rtwrfruc"
 RESERVATION="rrfsens"
 RESERVATION_POST="rrfsens"
-EXPT_BASEDIR="/lfs1/BMC/wrfruc/grap/rrfz/rundir"
+EXPT_BASEDIR="/lfs1/BMC/wrfruc/grap/rrfy/rundir"
 EXPT_SUBDIR="RRFS_CONUS_3km"
 
 if [[ -n $RESERVATION ]] ; then
@@ -150,7 +150,7 @@ FV3GFS_FILE_FMT_LBCS="grib2"
 envir="para"
 
 NET="rrfs_a"
-TAG="rrfz"
+TAG="rrfy"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
 TESTBED_FIELDS_FN="testbed_fields_bgdawp.txt"
@@ -212,9 +212,9 @@ COMINgfs=""
 
 . set_rrfs_config.sh
 
-STMP="/lfs1/BMC/wrfruc/grap/rrfz/nco_dirs/stmp"  # Path to directory STMP that mostly contains input files.
-PTMP="/lfs1/BMC/wrfruc/grap/rrfz/nco_dirs"  # Path to directory STMP that mostly contains input files.
-NWGES="/lfs1/BMC/wrfruc/grap/rrfz/nco_dirs/nwges/${envir}/${NET}"  # Path to directory NWGES that save boundary, cold initial, restart files
+STMP="/lfs1/BMC/wrfruc/grap/rrfy/nco_dirs/stmp"  # Path to directory STMP that mostly contains input files.
+PTMP="/lfs1/BMC/wrfruc/grap/rrfy/nco_dirs"  # Path to directory STMP that mostly contains input files.
+NWGES="/lfs1/BMC/wrfruc/grap/rrfy/nco_dirs/nwges/${envir}/${NET}"  # Path to directory NWGES that save boundary, cold initial, restart files
 if [[ ${regional_ensemble_option} == "5" ]]; then
   RRFSE_NWGES="YourOwnSpace/NCO_dirs/nwges"  # Path to RRFSE directory NWGES that mostly contains ensemble restart files for GSI hybrid.
   NUM_ENS_MEMBERS=10     # FV3LAM ensemble size for GSI hybrid analysis
