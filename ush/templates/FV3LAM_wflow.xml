@@ -3127,8 +3127,8 @@ MODULES_RUN_TASK_FP script.
 
          <and>
            <taskdep task="&RUN_PRDGEN_TN;_f000"/>
-           <metataskdep state="Dead" metatask="python_maps"/>
-           <taskdep state="Dead" task="python_skewts"/>
+           <metataskdep metatask="python_maps" state="Dead"/>
+           <taskdep task="python_skewts" state="Dead"/>
          </and>
        </or>
     </dependency>
