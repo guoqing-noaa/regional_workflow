@@ -22,7 +22,7 @@ if [[ -n $RESERVATION ]] ; then
   QUEUE_ANALYSIS="rt"
   QUEUE_PRDGEN="rt"
   QUEUE_GRAPHICS="rt"
-  QUEUE_HPSS="rt"
+  QUEUE_HPSS="batch"
   QUEUE_POST="rt"
   RESERVATION_POST="rrfsdet"
   NNODES_MAKE_ICS="3"

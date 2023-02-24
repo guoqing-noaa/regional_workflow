@@ -2,6 +2,8 @@
 module load hpss
 set -u -x
 
+. ${GLOBAL_VAR_DEFNS_FP}
+
 if [[ "${NET}" = "RTMA"* ]]; then #archive RTMA runs
 << FORTEST #comment out "FORTEST" lines to do offline tests
 PDY=20230224
@@ -12,7 +14,7 @@ BASEDIR=/lfs4/BMC/nrtrr/NCO_dirs/rtma.v0.3.0
 RUN=RTMA_CONUS
 cd $CYCLE_DIR
 ln -snf $BASEDIR/stmp/$CDATE/* .
-LOGDIR=$BASEDIR/com/logs/$RUN.$PDY/$cyc
+COMROOT=$BASEDIR/com
 COMOUT_BASEDIR=$BASEDIR/com/prod
 ARCHIVEDIR=/BMC/wrfruc/5year/rtma_b
 FORTEST
@@ -40,7 +42,7 @@ FORTEST
   cd ..
   
   #log
-  ln -snf $LOGDIR logs
+  ln -snf ${COMROOT}/logs/$RUN.$PDY/$cyc  logs
   zip -9 logs.zip logs/* &
 
   #rundir
@@ -90,6 +92,9 @@ FORTEST
 
   hsi mkdir -p ${ARCHIVEDIR}/$YYYY/$MM/$DD
   htar -cvf ${ARCHIVEDIR}/$YYYY/$MM/$DD/$CDATE.tar *
+  
+  cd ..
+  rm -rf $workdir
 
   exit 0
 fi
@@ -99,8 +104,6 @@ currentime=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
 day=$(date +%d -d "${currentime} 24 hours ago")
 month=$(date +%m -d "${currentime} 24 hours ago")
 year=$(date +%Y -d "${currentime} 24 hours ago")
-
-. ${GLOBAL_VAR_DEFNS_FP}
 
 cd ${COMOUT_BASEDIR}
 set -A XX `ls -d ${RUN}.$year$month$day/* | sort -r`
