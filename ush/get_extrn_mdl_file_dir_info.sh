@@ -527,9 +527,9 @@ and analysis or forecast (anl_or_fcst):
           fns_in_arcv=( "${fcst_hhh[@]/#/$prefix}" )
         fi
       elif [ "${fv3gfs_file_fmt}" = "netcdf" ]; then
-        fcst_hhh=( $( printf "%03d " "${lbc_spec_fhrs[@]}" ) )
-        postfix=".nc"
-        prefix="gfs.t${hh}z.atmf"
+        fcst_hhh=( $( printf "%02d " "${lbc_spec_fhrs[@]}" ) )
+        postfix="_ensmean"
+        prefix="sfg2_${yyyymmdd}${hh}_fhr"
         fns_on_disk_tmp=( "${fcst_hhh[@]/#/${prefix}}" )
         fns_on_disk=( "${fns_on_disk_tmp[@]/%/${postfix}}" )
         fns_in_arcv=( "${fcst_hhh[@]/#/${prefix}}" )

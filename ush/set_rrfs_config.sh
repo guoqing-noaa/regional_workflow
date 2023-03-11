@@ -55,7 +55,7 @@ if [[ $DO_RETRO == "TRUE" ]] ; then
        OBSPATH=/mnt/lfs4/HFIP/gsihyb/Chunhua.Zhou/data/obs
     else
        EXTRN_MDL_SOURCE_BASEDIR_ICS=/lfs1/BMC/wrfruc/grap/data/grap.netcdf
-       EXTRN_MDL_SOURCE_BASEDIR_LBCS=/lfs1/BMC/wrfruc/grap/data/gfs_tmp
+       EXTRN_MDL_SOURCE_BASEDIR_LBCS=/lfs1/BMC/wrfruc/grap/data/grap.bcs
     fi
 
     OBSPATH=/lfs1/BMC/wrfruc/grap/data/obs_rap_tmp

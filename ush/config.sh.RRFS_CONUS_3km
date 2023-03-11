@@ -2,7 +2,7 @@ MACHINE="jet"
 ACCOUNT="rtwrfruc"
 RESERVATION="rrfsens"
 RESERVATION_POST="rrfsens"
-EXPT_BASEDIR="/lfs1/BMC/wrfruc/grap/rrfy/rundir"
+EXPT_BASEDIR="/lfs1/BMC/wrfruc/grap/rrfx/rundir"
 EXPT_SUBDIR="RRFS_CONUS_3km"
 
 if [[ -n $RESERVATION ]] ; then
@@ -79,8 +79,8 @@ CCPP_PHYS_SUITE="FV3_HRRR"
 
 EXTRN_MDL_ICS_OFFSET_HRS="0"
 LBC_SPEC_INTVL_HRS="1"
-EXTRN_MDL_LBCS_OFFSET_HRS="6"
-BOUNDARY_LEN_HRS="18"
+EXTRN_MDL_LBCS_OFFSET_HRS="1"
+BOUNDARY_LEN_HRS="7"
 
 # avaialble retro period:
 # 20210511-20210531; 20210718-20210801
@@ -94,7 +94,7 @@ CYCLEDAY="26-31"
 
 PREEXISTING_DIR_METHOD="upgrade" # "rename"
 INITIAL_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 12:00:00"
-BOUNDARY_CYCLEDEF="${DATE_FIRST_CYCL}0000 ${DATE_LAST_CYCL}2300 06:00:00"
+BOUNDARY_CYCLEDEF="${DATE_FIRST_CYCL}0300 ${DATE_LAST_CYCL}2300 06:00:00"
 PROD_CYCLEDEF="${DATE_FIRST_CYCL}0900 ${DATE_LAST_CYCL}2300 01:00:00"
 POSTPROC_CYCLEDEF="${DATE_FIRST_CYCL}0900 ${DATE_LAST_CYCL}2300 01:00:00"
 POSTPROC_LONG_CYCLEDEF="${DATE_FIRST_CYCL}0900 ${DATE_LAST_CYCL}2300 03:00:00"
@@ -108,10 +108,11 @@ FCST_LEN_HRS_SPINUP="1"
 POSTPROC_LEN_HRS="3"
 POSTPROC_LONG_LEN_HRS="12"
 #FCST_LEN_HRS_CYCLES=(48 18 18 18 18 18 48 18 18 18 18 18 48 18 18 18 18 18 48 18 18 18 18 18)
-for i in {0..23}; do FCST_LEN_HRS_CYCLES[$i]=3; done
-for i in {0..23..3}; do FCST_LEN_HRS_CYCLES[$i]=12; done
+for i in {0..23}; do FCST_LEN_HRS_CYCLES[$i]=1; done
+if true; then FCST_LEN_HRS_CYCLES[9]=3; fi
+if true; then FCST_LEN_HRS_CYCLES[21]=3; fi
 DA_CYCLE_INTERV="1"
-RESTART_INTERVAL="1"
+RESTART_INTERVAL="1 2"
 
 SST_update_hour=01
 GVF_update_hour=04
@@ -145,12 +146,12 @@ EXTRN_MDL_NAME_ICS="FV3GFS"
 EXTRN_MDL_NAME_LBCS="FV3GFS"
 
 FV3GFS_FILE_FMT_ICS="netcdf"
-FV3GFS_FILE_FMT_LBCS="grib2"
+FV3GFS_FILE_FMT_LBCS="netcdf"
 
 envir="para"
 
 NET="rrfs_a"
-TAG="rrfy"
+TAG="rrfx"
 
 USE_CUSTOM_POST_CONFIG_FILE="TRUE"
 TESTBED_FIELDS_FN="testbed_fields_bgdawp.txt"
@@ -159,7 +160,7 @@ CUSTOM_POST_CONFIG_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&p
 CUSTOM_POST_PARAMS_FP="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." &>/dev/null&&pwd)/fix/upp/params_grib2_tbl_new"
 ARCHIVEDIR="/1year/BMC/wrfruc/rrfs_dev1"
 NCARG_ROOT="/apps/ncl/6.5.0-CentOS6.10_64bit_nodap_gnu447"
-NCL_HOME="/home/rtrr/RRFS/graphics"
+NCL_HOME="/home/role.rtrr/RRFS/graphics"
 NCL_REGION="conus"
 MODEL="RRFS_conus_3km"
 
@@ -212,9 +213,9 @@ COMINgfs=""
 
 . set_rrfs_config.sh
 
-STMP="/lfs1/BMC/wrfruc/grap/rrfy/nco_dirs/stmp"  # Path to directory STMP that mostly contains input files.
-PTMP="/lfs1/BMC/wrfruc/grap/rrfy/nco_dirs"  # Path to directory STMP that mostly contains input files.
-NWGES="/lfs1/BMC/wrfruc/grap/rrfy/nco_dirs/nwges/${envir}/${NET}"  # Path to directory NWGES that save boundary, cold initial, restart files
+STMP="/lfs1/BMC/wrfruc/grap/rrfx/nco_dirs/stmp"  # Path to directory STMP that mostly contains input files.
+PTMP="/lfs1/BMC/wrfruc/grap/rrfx/nco_dirs"  # Path to directory STMP that mostly contains input files.
+NWGES="/lfs1/BMC/wrfruc/grap/rrfx/nco_dirs/nwges/${envir}/${NET}"  # Path to directory NWGES that save boundary, cold initial, restart files
 if [[ ${regional_ensemble_option} == "5" ]]; then
   RRFSE_NWGES="YourOwnSpace/NCO_dirs/nwges"  # Path to RRFSE directory NWGES that mostly contains ensemble restart files for GSI hybrid.
   NUM_ENS_MEMBERS=10     # FV3LAM ensemble size for GSI hybrid analysis
