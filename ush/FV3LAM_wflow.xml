@@ -152,7 +152,7 @@ tasks; and the "FCST" type is used for the RUN_FCST_TN task.
   <cycledef group="ensfcstcyc"> 00 01 01 01 2100 * </cycledef>
 
   <cycledef group="postproc_normal"> 202108260900 202108312300 01:00:00 </cycledef>
-  <cycledef group="postproc_long"> 202108260900 202108312300 03:00:00 </cycledef>
+  <cycledef group="postproc_long"> 202108260900 202108312300 12:00:00 </cycledef>
   <cycledef group="archive">  00 01 01 01 2100 * </cycledef> 
 
   <log>
@@ -683,7 +683,7 @@ MODULES_RUN_TASK_FP script.
 
   <metatask name="&SAVE_RESTART_TN;_prod">
 
-    <var name="fhr"> 1 2 </var>
+    <var name="fhr"> 1 </var>
 
     <task name="&SAVE_RESTART_TN;_prod_f#fhr#" cycledefs="prodcyc" maxtries="3">
 
@@ -726,8 +726,8 @@ MODULES_RUN_TASK_FP script.
 
   <metatask name="&RUN_POST_TN;">
 
-    <var name="fullfhr">  000 001 002 003 004 005 006 007 008 009 010 011 012 </var>
-    <var name="type">  normal normal normal normal  long long long long long long long long long </var>
+    <var name="fullfhr">  000 001 002 003 </var>
+    <var name="type">  normal normal long long </var>
     <metatask>
 
        <var name="fhr"> #fullfhr# </var>
@@ -764,8 +764,8 @@ MODULES_RUN_TASK_FP script.
 
 <metatask mode="serial">
 
-    <var name="fhr">  000 001 002 003 004 005 006 007 008 009 010 011 012 </var>
-    <var name="type">  normal normal normal normal  long long long long long long long long long </var>
+    <var name="fhr">  000 001 002 003 </var>
+    <var name="type">  normal normal long long </var>
 
     <task name="&RUN_WGRIB2_TN;_f#fhr#" cycledefs="postproc_#type#" maxtries="3">
 
